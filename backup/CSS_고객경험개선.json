@@ -1,0 +1,106 @@
+{
+  "surveyId": "CS2024002",
+  "title": "2024년 고객 경험 개선을 위한 설문조사",
+  "description": "고객님의 소중한 의견을 듣고 더 나은 서비스를 제공하고자 합니다.",
+  "creator": {
+    "name": "김고객연구",
+    "department": "고객만족경영팀",
+    "email": "survey@company.com"
+  },
+  "schedule": {
+    "date": {
+        "start": "2024-01-15", 
+        "end": "2024-02-15"
+    },
+    "time": {
+        "start": "09:00:00",
+        "end": "18:00:00"
+    },
+    "offtime": [
+      {
+        "name": "점심시간",
+        "start": "12:00:00",
+        "end": "13:00:00"
+      }
+    ]
+  },
+  "questions": [
+    {
+      "questionId": "Q1",
+      "questionType": "multiple_choice",
+      "promptType": "text_prompt",
+      "prompt": "귀하의 연령대를 선택해 주세요.",
+      "options": [
+        { "value": "1", "label": "20대 이하" },
+        { "value": "2", "label": "30대" },
+        { "value": "3", "label": "40대" },
+        { "value": "4", "label": "50대" },
+        { "value": "5", "label": "60대 이상" }
+      ],
+      "nextQuestion": "Q2"
+    },
+    {
+      "questionId": "Q2",
+      "questionType": "multiple_choice",
+      "promptType": "voice_prompt",
+      "prompt": "audio_files/frequency_question.mp3",
+      "options": [
+        { "value": "1", "label": "주 1회 이상" },
+        { "value": "2", "label": "월 2-3회" },
+        { "value": "3", "label": "월 1회" },
+        { "value": "4", "label": "2-3개월에 1회" },
+        { "value": "5", "label": "거의 이용하지 않음" }
+      ],
+      "nextQuestion": { "1": "Q3", "2": "Q3", "3": "Q3", "4": "Q4", "5": "Q5" }
+    },
+    {
+      "questionId": "Q3",
+      "questionType": "multiple_choice",
+      "promptType": "text_prompt",
+      "prompt": "서비스에 대해 전반적으로 얼마나 만족하십니까?",
+      "options": [
+        { "value": "5", "label": "매우 만족" },
+        { "value": "4", "label": "만족" },
+        { "value": "3", "label": "보통" },
+        { "value": "2", "label": "불만족" },
+        { "value": "1", "label": "매우 불만족" }
+      ],
+      "nextQuestion": "Q6"
+    },
+    {
+      "questionId": "Q4",
+      "questionType": "text_opinion",
+      "promptType": "text_prompt",
+      "prompt": "서비스 이용 빈도가 낮은 이유를 자세히 설명해 주세요.",
+      "nextQuestion": "Q6"
+    },
+    {
+      "questionId": "Q5",
+      "questionType": "voice_opinion",
+      "promptType": "voice_prompt",
+      "prompt": "audio_files/low_usage_reason.mp3",
+      "nextQuestion": "Q6"
+    },
+    {
+      "questionId": "Q6",
+      "questionType": "multiple_choice",
+      "promptType": "text_prompt",
+      "prompt": "향후 서비스 개선을 위해 가장 중요하다고 생각하는 항목은 무엇입니까?",
+      "options": [
+        { "value": "1", "label": "사용 편의성" },
+        { "value": "2", "label": "서비스 품질" },
+        { "value": "3", "label": "가격 정책" },
+        { "value": "4", "label": "고객 지원" },
+        { "value": "5", "label": "새로운 기능 추가" }
+      ],
+      "nextQuestion": "Q7"
+    },
+    {
+      "questionId": "Q7",
+      "questionType": "voice_opinion",
+      "promptType": "voice_prompt",
+      "prompt": "audio_files/final_feedback.mp3",
+      "nextQuestion": null
+    }
+  ]
+}
