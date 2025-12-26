@@ -569,6 +569,15 @@ export const useSurveyStore = create<SurveyStore>()(
             }
           });
 
+          // 3. 시작에서 종료까지 도달 가능한지 체크 (Path Existence)
+          if (!reachable.has('end')) {
+            errors.push({
+              nodeId: 'start',
+              message: '설문이 종료 노드에 도달할 수 없습니다. 모든 경로를 연결해주세요.',
+              type: 'invalid_path',
+            });
+          }
+
           // store에 에러 설정
           get().actions.setValidationErrors(errors);
           return errors;

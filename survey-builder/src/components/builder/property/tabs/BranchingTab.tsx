@@ -1,12 +1,25 @@
-'use client';
-
-// components/builder/property/tabs/BranchingTab.tsx - 분기 로직 탭
-
+import { useCallback } from 'react';
 import { useSurveyStore, useSurveyActions } from '@/stores';
-import type { Question, QuestionNode } from '@/types';
-import { ArrowRight, GitBranch } from 'lucide-react';
+import type { Question, QuestionNode, QuestionOption } from '@/types';
+import { ArrowRight, GitBranch, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableOptionItem } from './SortableOptionItem';
 
 interface BranchingTabProps {
   question: Question;
@@ -17,6 +30,67 @@ export function BranchingTab({ question, nodeId }: BranchingTabProps) {
   const nodes = useSurveyStore((state) => state.nodes);
   const edges = useSurveyStore((state) => state.edges);
   const surveyActions = useSurveyActions();
+  const options = question.options || [];
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const updateOptions = useCallback(
+    (newOptions: QuestionOption[]) => {
+      surveyActions.updateQuestionNode(nodeId, { options: newOptions });
+    },
+    [nodeId, surveyActions]
+  );
+
+  const handleAddOption = useCallback(() => {
+    const nextVal = options.length > 0
+      ? (Math.max(...options.map(o => parseInt(o.value) || 0)) + 1).toString()
+      : "1";
+
+    const newOption: QuestionOption = {
+      value: nextVal,
+      label: `옵션 ${options.length + 1}`,
+      score: options.length + 1,
+    };
+    updateOptions([...options, newOption]);
+  }, [options, updateOptions]);
+
+  const handleRemoveOption = useCallback(
+    (index: number) => {
+      if (options.length <= 1) return;
+      const newOptions = options.filter((_, i) => i !== index);
+      updateOptions(newOptions);
+    },
+    [options, updateOptions]
+  );
+
+  const handleUpdateOption = useCallback(
+    (index: number, field: keyof QuestionOption, value: string | number) => {
+      const newOptions = [...options];
+      newOptions[index] = { ...newOptions[index], [field]: value };
+      updateOptions(newOptions);
+    },
+    [options, updateOptions]
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = options.findIndex((opt) => opt.value === active.id);
+      const newIndex = options.findIndex((opt) => opt.value === over.id);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        updateOptions(arrayMove(options, oldIndex, newIndex));
+      }
+    }
+  };
 
   // 현재 노드에서 나가는 연결 찾기
   const outgoingEdges = edges.filter((e) => e.source === nodeId);
@@ -37,168 +111,167 @@ export function BranchingTab({ question, nodeId }: BranchingTabProps) {
   };
 
   // 분기 유형 판단
-  const hasBranching = question.questionType === 'multiple_choice' && question.options;
+  const hasBranching = question.questionType === 'multiple_choice';
   const isSinglePath = typeof question.nextQuestion === 'string';
   const isMultiBranch = typeof question.nextQuestion === 'object' && question.nextQuestion !== null;
 
   // 단일 분기로 변환
   const convertToSinglePath = () => {
-    // 모든 옵션 연결 삭제
     const edgesToDelete = outgoingEdges.filter(e =>
       e.sourceHandle && e.sourceHandle.startsWith('output-')
     );
     edgesToDelete.forEach(e => surveyActions.deleteEdge(e.id));
-
-    // nextQuestion을 null로 설정 (사용자가 수동으로 연결하도록)
     surveyActions.updateQuestionNode(nodeId, { nextQuestion: null });
   };
 
   // 멀티 분기로 변환
   const convertToMultiBranch = () => {
-    // 기존 default 연결 삭제
     const defaultEdge = outgoingEdges.find(e => e.sourceHandle === 'output-default');
     if (defaultEdge) {
       surveyActions.deleteEdge(defaultEdge.id);
     }
-
-    // nextQuestion을 빈 객체로 설정 (사용자가 수동으로 연결하도록)
     surveyActions.updateQuestionNode(nodeId, { nextQuestion: {} });
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-2">
-        <GitBranch className="w-5 h-5 text-gray-500" />
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          분기 로직
-        </h3>
+    <div className="space-y-6">
+      {/* 1. 분기 유형 선택 */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <GitBranch className="w-4 h-4 text-indigo-500" />
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            분기 유형
+          </h3>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={convertToSinglePath}
+            className={cn(
+              'p-2.5 rounded-lg border transition-all text-left relative',
+              isSinglePath || (!isSinglePath && !isMultiBranch)
+                ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 ring-1 ring-indigo-500/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+            )}
+          >
+            <div className="font-semibold text-xs text-gray-900 dark:text-gray-100">단일 경로</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">
+              모든 답변이 공통 질문으로 이동
+            </div>
+            {(isSinglePath || (!isSinglePath && !isMultiBranch)) && (
+              <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+            )}
+          </button>
+
+          <button
+            onClick={convertToMultiBranch}
+            disabled={!hasBranching}
+            className={cn(
+              'p-2.5 rounded-lg border transition-all text-left relative',
+              !hasBranching && 'opacity-50 cursor-not-allowed',
+              isMultiBranch
+                ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 ring-1 ring-indigo-500/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+            )}
+          >
+            <div className="font-semibold text-xs text-gray-900 dark:text-gray-100">조건별 분기</div>
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">
+              답변에 따라 다른 질문으로 이동
+            </div>
+            {isMultiBranch && (
+              <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-indigo-500 rounded-full" />
+            )}
+          </button>
+        </div>
       </div>
 
-      {!hasBranching ? (
-        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            객관식 질문에서만 분기 로직을 설정할 수 있습니다.
-          </p>
+      <div className="h-px bg-gray-100 dark:bg-gray-800" />
+
+      {/* 2. 옵션 및 연결 관리 */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              {isMultiBranch ? '옵션별 분기 설정' : '선택 옵션 관리'}
+            </h3>
+            <span className="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">
+              {options.length}
+            </span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAddOption}
+            className="h-7 px-2 text-[11px] border-dashed hover:border-indigo-500 hover:text-indigo-600"
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            옵션 추가
+          </Button>
         </div>
-      ) : (
-        <>
-          {/* 분기 유형 선택 */}
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              분기 유형
-            </h4>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={convertToSinglePath}
-                className={cn(
-                  'p-3 rounded-lg border-2 transition-all text-left',
-                  isSinglePath || (!isSinglePath && !isMultiBranch)
-                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                )}
-              >
-                <div className="font-medium text-sm text-gray-900 dark:text-gray-100">단일 분기</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  모든 옵션이 같은 질문으로 이동
-                </div>
-              </button>
+            <SortableContext
+              items={options.map((o) => o.value)}
+              strategy={verticalListSortingStrategy}
+            >
+              {options.map((option, index) => {
+                // 멀티 분기일 때 연결 상태 찾기
+                const edge = isMultiBranch
+                  ? outgoingEdges.find(e => e.sourceHandle === `output-${option.value}` || e.data?.condition === option.value)
+                  : null;
+                const targetInfo = edge ? getTargetNodeInfo(edge.target) : null;
 
-              <button
-                onClick={convertToMultiBranch}
-                className={cn(
-                  'p-3 rounded-lg border-2 transition-all text-left',
-                  isMultiBranch
-                    ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                )}
-              >
-                <div className="font-medium text-sm text-gray-900 dark:text-gray-100">멀티 분기</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  옵션별로 다른 질문으로 이동
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
-            <p className="text-xs text-amber-700 dark:text-amber-300">
-              {isSinglePath || (!isSinglePath && !isMultiBranch)
-                ? '단일 분기: 캔버스에서 기본 포트를 다른 질문에 연결하세요.'
-                : '멀티 분기: 캔버스에서 각 옵션의 포트를 다른 질문에 연결하세요.'}
-            </p>
-          </div>
-
-          {/* 현재 연결 상태 */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-gray-600 dark:text-gray-400">
-              현재 연결 상태
-            </h4>
-
-            {outgoingEdges.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">
-                연결된 질문이 없습니다.
-              </p>
-            ) : isMultiBranch ? (
-              <div className="space-y-2">
-                {question.options?.map((option) => {
-                  const edge = outgoingEdges.find(
-                    (e) =>
-                      e.sourceHandle === `output-${option.value}` ||
-                      (e.data?.condition === option.value)
-                  );
-                  const targetInfo = edge ? getTargetNodeInfo(edge.target) : null;
-
-                  return (
-                    <div
-                      key={option.value}
-                      className={cn(
-                        'flex items-center justify-between p-3',
-                        'bg-white dark:bg-gray-800 rounded-lg',
-                        'border',
-                        targetInfo
-                          ? 'border-green-200 dark:border-green-800'
-                          : 'border-gray-200 dark:border-gray-700'
-                      )}
-                    >
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        "{option.label}" 선택 시
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <ArrowRight className="w-4 h-4 text-gray-400" />
+                return (
+                  <div key={option.value} className="space-y-1.5">
+                    <SortableOptionItem
+                      id={option.value}
+                      option={option}
+                      index={index}
+                      onUpdate={handleUpdateOption}
+                      onRemove={handleRemoveOption}
+                      isRemovable={options.length > 1}
+                    />
+                    {isMultiBranch && (
+                      <div className="flex items-center gap-2 px-3 py-1.5 ml-8 bg-white dark:bg-gray-900/50 rounded-md border border-gray-100 dark:border-gray-800/50 text-[11px]">
+                        <span className="text-gray-400 font-medium whitespace-nowrap">연결 대상:</span>
+                        <ArrowRight className="w-3 h-3 text-gray-300" />
                         {targetInfo ? (
-                          <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                            {targetInfo.id === 'end' ? '종료' : `${targetInfo.id}`}
+                          <span className="text-indigo-600 dark:text-indigo-400 font-bold truncate">
+                            {targetInfo.id === 'end' ? '설문 종료' : `[${targetInfo.id}] ${targetInfo.title}`}
                           </span>
                         ) : (
-                          <span className="text-sm text-gray-400 italic">
-                            미연결
-                          </span>
+                          <span className="text-amber-500 italic font-medium animate-pulse">캔버스에서 연결이 필요합니다.</span>
                         )}
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    기본 경로 (모든 옵션)
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <ArrowRight className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {getTargetNodeInfo(
-                        outgoingEdges.find((e) => e.sourceHandle === 'output-default')?.target || ''
-                      )?.title || '미연결'}
-                    </span>
+                    )}
                   </div>
-                </div>
-              </div>
-            )}
+                );
+              })}
+            </SortableContext>
           </div>
-        </>
-      )}
+        </DndContext>
+
+        {/* 단일 분기일 때의 공통 경로 표시 */}
+        {!isMultiBranch && outgoingEdges.length > 0 && (
+          <div className="mt-4 p-3 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-lg border border-indigo-100/50 dark:border-indigo-900/20">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-indigo-700 dark:text-indigo-300 font-medium">공통 다음 질문</span>
+              <div className="flex items-center gap-2">
+                <ArrowRight className="w-3 h-3 text-indigo-400" />
+                <span className="font-bold text-indigo-600 dark:text-indigo-400">
+                  {getTargetNodeInfo(
+                    outgoingEdges.find((e) => e.sourceHandle === 'output-default' || !e.sourceHandle)?.target || ''
+                  )?.title || '미연결 (캔버스에서 연결)'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -78,15 +78,6 @@ export function PropertyPanel() {
           >
             기본 정보
           </TabsTrigger>
-          {question.questionType === 'multiple_choice' && (
-            <TabsTrigger
-              value="options"
-              className="text-xs px-3 py-1.5 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800"
-              data-testid="tab-options"
-            >
-              옵션
-            </TabsTrigger>
-          )}
           <TabsTrigger
             value="validation"
             className="text-xs px-3 py-1.5 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800"
@@ -114,11 +105,6 @@ export function PropertyPanel() {
           <TabsContent value="basic" className="m-0 p-4">
             <BasicInfoTab question={question} nodeId={selectedNodeId!} />
           </TabsContent>
-          {question.questionType === 'multiple_choice' && (
-            <TabsContent value="options" className="m-0 p-4">
-              <OptionsTab question={question} nodeId={selectedNodeId!} />
-            </TabsContent>
-          )}
           <TabsContent value="validation" className="m-0 p-4">
             <ValidationTab question={question} nodeId={selectedNodeId!} />
           </TabsContent>

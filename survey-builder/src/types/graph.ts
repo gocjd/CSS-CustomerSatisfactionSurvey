@@ -118,7 +118,7 @@ export function createEdge(
 
 // 그래프 검증 에러 타입
 export interface GraphError {
-  type: 'loop' | 'orphan' | 'dangling' | 'missing_connection' | 'validation';
+  type: 'loop' | 'orphan' | 'dangling' | 'missing_connection' | 'validation' | 'invalid_path';
   nodeId: string;
   message: string;
 }

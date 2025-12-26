@@ -184,17 +184,18 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
       </div>
 
       {/* Output Ports (Right) */}
-      <div className="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
+      <div className="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl overflow-hidden">
         {outputPorts.map((port, index) => (
           <div
             key={port.id}
             className={cn(
-              'relative flex items-center justify-end px-4 py-2',
+              'relative flex items-center justify-end px-4 py-2.5 min-h-[44px]',
               index !== outputPorts.length - 1 &&
-              'border-b border-gray-100 dark:border-gray-700'
+              'border-b border-gray-100 dark:border-gray-700',
+              'transition-colors hover:bg-gray-100 dark:hover:bg-gray-700/50'
             )}
           >
-            <span className="text-xs text-gray-500 dark:text-gray-400 mr-3 truncate max-w-[200px]">
+            <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 mr-3 truncate max-w-[200px] select-none">
               {port.label}
             </span>
             <Handle
@@ -202,16 +203,21 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
               position={Position.Right}
               id={port.id}
               className={cn(
-                '!w-4 !h-4 !border-2 !border-white !rounded-full',
-                '!-right-2',
-                'transition-transform hover:!scale-125',
-                port.value === 'default'
-                  ? '!bg-emerald-500'
-                  : '!bg-orange-500'
+                '!w-full !h-full !border-0 !bg-transparent !static !opacity-100',
+                'absolute inset-0 z-10 cursor-alias'
               )}
-              style={{ top: '50%', transform: 'translateY(-50%)' }}
+              style={{ top: '50%', transform: 'translateY(-50%)', left: 0 }}
               data-handleid={port.id}
             />
+            {/* Visual indicator (Circle) */}
+            <div className={cn(
+              'w-3 h-3 border-2 border-white rounded-full z-0 shadow-sm',
+              port.value === 'default'
+                ? 'bg-emerald-500'
+                : 'bg-orange-500 text-[8px] flex items-center justify-center font-bold text-white'
+            )}>
+              {port.value !== 'default' && <span></span>}
+            </div>
           </div>
         ))}
       </div>
