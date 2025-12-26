@@ -305,9 +305,10 @@ export const useSurveyStore = create<SurveyStore>()(
             }
           });
 
-          // 히스토리 저장
+          // 히스토리 저장 및 유효성 검증
           const updatedState = get();
           useHistoryStore.getState().actions.saveState(updatedState.nodes, updatedState.edges);
+          get().actions.validateGraph();
 
           return newQuestionId;
         },
@@ -323,9 +324,10 @@ export const useSurveyStore = create<SurveyStore>()(
             }
           });
 
-          // 히스토리 저장
+          // 히스토리 저장 및 유효성 검증
           const updatedState = get();
           useHistoryStore.getState().actions.saveState(updatedState.nodes, updatedState.edges);
+          get().actions.validateGraph();
         },
 
         // 노드 삭제
@@ -367,9 +369,10 @@ export const useSurveyStore = create<SurveyStore>()(
             }
           });
 
-          // 히스토리 저장
+          // 히스토리 저장 및 유효성 검증
           const updatedState = get();
           useHistoryStore.getState().actions.saveState(updatedState.nodes, updatedState.edges);
+          get().actions.validateGraph();
         },
 
         // 노드 선택
@@ -427,9 +430,10 @@ export const useSurveyStore = create<SurveyStore>()(
             }
           });
 
-          // 히스토리 저장
+          // 히스토리 저장 및 유효성 검증
           const updatedState = get();
           useHistoryStore.getState().actions.saveState(updatedState.nodes, updatedState.edges);
+          get().actions.validateGraph();
         },
 
         // 엣지 삭제
@@ -442,9 +446,10 @@ export const useSurveyStore = create<SurveyStore>()(
             }
           });
 
-          // 히스토리 저장
+          // 히스토리 저장 및 유효성 검증
           const updatedState = get();
           useHistoryStore.getState().actions.saveState(updatedState.nodes, updatedState.edges);
+          get().actions.validateGraph();
         },
 
         setEdges: (edges) => {

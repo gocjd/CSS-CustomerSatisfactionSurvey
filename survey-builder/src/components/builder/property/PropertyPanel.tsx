@@ -79,11 +79,10 @@ export function PropertyPanel() {
             기본 정보
           </TabsTrigger>
           <TabsTrigger
-            value="validation"
+            value="branching"
             className="text-xs px-3 py-1.5 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800"
-            data-testid="tab-validation"
           >
-            검증
+            분기
           </TabsTrigger>
           {question.questionType === 'image_item' && (
             <TabsTrigger
@@ -94,10 +93,11 @@ export function PropertyPanel() {
             </TabsTrigger>
           )}
           <TabsTrigger
-            value="branching"
+            value="validation"
             className="text-xs px-3 py-1.5 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800"
+            data-testid="tab-validation"
           >
-            분기
+            검증
           </TabsTrigger>
         </TabsList>
 
@@ -105,16 +105,16 @@ export function PropertyPanel() {
           <TabsContent value="basic" className="m-0 p-4">
             <BasicInfoTab question={question} nodeId={selectedNodeId!} />
           </TabsContent>
-          <TabsContent value="validation" className="m-0 p-4">
-            <ValidationTab question={question} nodeId={selectedNodeId!} />
+          <TabsContent value="branching" className="m-0 p-4">
+            <BranchingTab question={question} nodeId={selectedNodeId!} />
           </TabsContent>
           {question.questionType === 'image_item' && (
             <TabsContent value="image" className="m-0 p-4">
               <ImageTab question={question} nodeId={selectedNodeId!} />
             </TabsContent>
           )}
-          <TabsContent value="branching" className="m-0 p-4">
-            <BranchingTab question={question} nodeId={selectedNodeId!} />
+          <TabsContent value="validation" className="m-0 p-4">
+            <ValidationTab question={question} nodeId={selectedNodeId!} />
           </TabsContent>
         </div>
       </Tabs>

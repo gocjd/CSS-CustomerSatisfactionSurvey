@@ -184,40 +184,43 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
       </div>
 
       {/* Output Ports (Right) */}
-      <div className="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl overflow-hidden">
+      <div className="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
         {outputPorts.map((port, index) => (
           <div
             key={port.id}
             className={cn(
-              'relative flex items-center justify-end px-4 py-2.5 min-h-[44px]',
+              'relative flex items-center justify-end px-4 py-3 min-h-[44px]',
               index !== outputPorts.length - 1 &&
               'border-b border-gray-100 dark:border-gray-700',
               'transition-colors hover:bg-gray-100 dark:hover:bg-gray-700/50'
             )}
           >
-            <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 mr-3 truncate max-w-[200px] select-none">
+            {/* Label - 클릭/드래그 시 시각적으로 방해되지 않도록 select-none */}
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mr-3 select-none z-0">
               {port.label}
             </span>
+
+            {/* Handle - 텍스트 영역까지 확장하여 드래그 편의성 제공 */}
             <Handle
               type="source"
               position={Position.Right}
               id={port.id}
               className={cn(
-                '!w-full !h-full !border-0 !bg-transparent !static !opacity-100',
-                'absolute inset-0 z-10 cursor-alias'
+                '!w-full !h-full !border-0 !bg-transparent !opacity-0',
+                'absolute inset-0 z-20 cursor-alias'
               )}
-              style={{ top: '50%', transform: 'translateY(-50%)', left: 0 }}
+              style={{ padding: 0, margin: 0, top: '50%', transform: 'translateY(-50%)', right: 0 }}
               data-handleid={port.id}
             />
-            {/* Visual indicator (Circle) */}
+
+            {/* Visual indicator (Circle) - 사용자에게 연결 포트임을 시각적으로 안내 */}
             <div className={cn(
-              'w-3 h-3 border-2 border-white rounded-full z-0 shadow-sm',
+              'w-3.5 h-3.5 border-2 border-white rounded-full z-10 shadow-sm transition-transform',
+              'group-hover:scale-110',
               port.value === 'default'
                 ? 'bg-emerald-500'
-                : 'bg-orange-500 text-[8px] flex items-center justify-center font-bold text-white'
-            )}>
-              {port.value !== 'default' && <span></span>}
-            </div>
+                : 'bg-orange-500'
+            )} />
           </div>
         ))}
       </div>
