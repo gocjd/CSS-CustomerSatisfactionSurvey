@@ -13,6 +13,7 @@ import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { OptionsTab } from './tabs/OptionsTab';
 import { ValidationTab } from './tabs/ValidationTab';
 import { BranchingTab } from './tabs/BranchingTab';
+import { ImageTab } from './tabs/ImageTab';
 
 export function PropertyPanel() {
   const isPropertyPanelOpen = useUIStore((state) => state.isPropertyPanelOpen);
@@ -93,6 +94,14 @@ export function PropertyPanel() {
           >
             검증
           </TabsTrigger>
+          {question.questionType === 'image_item' && (
+            <TabsTrigger
+              value="image"
+              className="text-xs px-3 py-1.5 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800"
+            >
+              이미지
+            </TabsTrigger>
+          )}
           <TabsTrigger
             value="branching"
             className="text-xs px-3 py-1.5 data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800"
@@ -113,6 +122,11 @@ export function PropertyPanel() {
           <TabsContent value="validation" className="m-0 p-4">
             <ValidationTab question={question} nodeId={selectedNodeId!} />
           </TabsContent>
+          {question.questionType === 'image_item' && (
+            <TabsContent value="image" className="m-0 p-4">
+              <ImageTab question={question} nodeId={selectedNodeId!} />
+            </TabsContent>
+          )}
           <TabsContent value="branching" className="m-0 p-4">
             <BranchingTab question={question} nodeId={selectedNodeId!} />
           </TabsContent>

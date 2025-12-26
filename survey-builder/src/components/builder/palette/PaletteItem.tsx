@@ -3,7 +3,7 @@
 // components/builder/palette/PaletteItem.tsx - 팔레트 아이템
 
 import { memo } from 'react';
-import { ListChecks, MessageSquare, Mic } from 'lucide-react';
+import { ImageIcon, ListChecks, MessageSquare, Mic } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIActions } from '@/stores';
 import type { QuestionType } from '@/types';
@@ -12,7 +12,7 @@ interface PaletteItemProps {
   type: QuestionType;
   label: string;
   description: string;
-  icon: 'list' | 'text' | 'mic';
+  icon: 'list' | 'text' | 'mic' | 'image';
   compact?: boolean;
 }
 
@@ -20,6 +20,7 @@ const iconMap = {
   list: ListChecks,
   text: MessageSquare,
   mic: Mic,
+  image: ImageIcon,
 };
 
 const colorMap: Record<QuestionType, { bg: string; text: string; border: string }> = {
@@ -37,6 +38,11 @@ const colorMap: Record<QuestionType, { bg: string; text: string; border: string 
     bg: 'bg-purple-50 dark:bg-purple-950 hover:bg-purple-100 dark:hover:bg-purple-900',
     text: 'text-purple-600 dark:text-purple-400',
     border: 'border-purple-200 dark:border-purple-800',
+  },
+  image_item: {
+    bg: 'bg-orange-50 dark:bg-orange-950 hover:bg-orange-100 dark:hover:bg-orange-900',
+    text: 'text-orange-600 dark:text-orange-400',
+    border: 'border-orange-200 dark:border-orange-800',
   },
 };
 

@@ -283,7 +283,14 @@ export const useSurveyStore = create<SurveyStore>()(
             const question: Question = {
               ...template,
               questionId: newQuestionId,
-              title: `${template.questionType === 'multiple_choice' ? '객관식' : template.questionType === 'text_opinion' ? '텍스트' : '음성'} 질문`,
+              title: `${template.questionType === 'multiple_choice'
+                ? '객관식'
+                : template.questionType === 'text_opinion'
+                  ? '텍스트'
+                  : template.questionType === 'voice_opinion'
+                    ? '음성'
+                    : '이미지'
+                } 질문`,
               sectionId,
               nextQuestion: null,
             } as Question;
@@ -490,8 +497,12 @@ export const useSurveyStore = create<SurveyStore>()(
             // 출력 엣지 합계
             const outgoingEdges = edges.filter((e) => e.source === node.id);
 
-            // 음성/텍스트 질문: 무조건 하나의 출력이 있어야 함 (default)
-            if (questionType === 'voice_opinion' || questionType === 'text_opinion') {
+            // 음성/텍스트/이미지 질문: 무조건 하나의 출력이 있어야 함 (default)
+            if (
+              questionType === 'voice_opinion' ||
+              questionType === 'text_opinion' ||
+              questionType === 'image_item'
+            ) {
               if (outgoingEdges.length === 0) {
                 errors.push({
                   nodeId: node.id,

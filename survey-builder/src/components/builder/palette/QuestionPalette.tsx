@@ -15,7 +15,7 @@ interface PaletteItemData {
   type: QuestionType;
   label: string;
   description: string;
-  icon: 'list' | 'text' | 'mic';
+  icon: 'list' | 'text' | 'mic' | 'image';
 }
 
 const paletteItems: PaletteItemData[] = [
@@ -36,6 +36,12 @@ const paletteItems: PaletteItemData[] = [
     label: '음성 의견',
     description: '음성 녹음 답변',
     icon: 'mic',
+  },
+  {
+    type: 'image_item',
+    label: '이미지 아이템',
+    description: '이미지 표시 및 링크',
+    icon: 'image',
   },
 ];
 

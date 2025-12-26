@@ -10,6 +10,7 @@ import {
   ListChecks,
   MessageSquare,
   Mic,
+  ImageIcon,
   AlertCircle,
   GripVertical,
 } from 'lucide-react';
@@ -18,6 +19,7 @@ const questionTypeIcons = {
   multiple_choice: ListChecks,
   text_opinion: MessageSquare,
   voice_opinion: Mic,
+  image_item: ImageIcon,
 } as const;
 
 const questionTypeColors = {
@@ -35,6 +37,11 @@ const questionTypeColors = {
     bg: 'bg-purple-50 dark:bg-purple-950',
     border: 'border-purple-200 dark:border-purple-800',
     accent: 'text-purple-600 dark:text-purple-400',
+  },
+  image_item: {
+    bg: 'bg-orange-50 dark:bg-orange-950',
+    border: 'border-orange-200 dark:border-orange-800',
+    accent: 'text-orange-600 dark:text-orange-400',
   },
 } as const;
 
@@ -139,6 +146,15 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
             ? question.audio?.transcript || '음성 프롬프트'
             : question.prompt}
         </p>
+        {question.questionType === 'image_item' && question.imageUrl && (
+          <div className="mt-3 relative aspect-video rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-950">
+            <img
+              src={question.imageUrl}
+              alt={question.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
         <div className="mt-3 flex flex-wrap gap-2">
           <span
             className={cn(

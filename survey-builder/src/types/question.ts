@@ -1,6 +1,6 @@
 // types/question.ts - 질문 관련 타입 정의
 
-export type QuestionType = 'multiple_choice' | 'text_opinion' | 'voice_opinion';
+export type QuestionType = 'multiple_choice' | 'text_opinion' | 'voice_opinion' | 'image_item';
 
 export type PromptType = 'text_prompt' | 'voice_prompt';
 
@@ -45,7 +45,7 @@ export interface AudioValidation {
   maxDuration: number;
 }
 
-export type ValidationRule = SelectionValidation | TextValidation | AudioValidation;
+export type ValidationRule = SelectionValidation | TextValidation | AudioValidation | null;
 
 // 기본 검증 규칙 (legacy 지원)
 export interface LegacyValidation {
@@ -73,6 +73,10 @@ export interface Question {
   displayType?: DisplayType;
   placeholder?: string;
   nextQuestion: string | Record<string, string> | null;
+  // 이미지 관련 속성 추가
+  imageUrl?: string;
+  imageLink?: string;
+  openInNewTab?: boolean;
 }
 
 // 질문 타입별 기본 템플릿
@@ -123,6 +127,17 @@ export const QUESTION_TEMPLATES: Record<QuestionType, Partial<Question>> = {
       maxDuration: 120,
     },
   },
+  image_item: {
+    questionType: 'image_item',
+    promptType: 'text_prompt',
+    prompt: '',
+    importance: 'medium',
+    required: false,
+    imageUrl: '',
+    imageLink: '',
+    openInNewTab: true,
+    validation: null,
+  },
 };
 
 // 질문 타입별 라벨
@@ -130,6 +145,7 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   multiple_choice: '객관식',
   text_opinion: '텍스트 의견',
   voice_opinion: '음성 의견',
+  image_item: '이미지 아이템',
 };
 
 // 중요도별 라벨
