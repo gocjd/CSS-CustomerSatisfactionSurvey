@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "autoApprove": true
+    }
+  },
+  "tools": {
+    "mcp__playwright__browser_click": {
+      "autoApprove": true
+    },
+    "mcp__playwright__browser_navigate": {
+      "autoApprove": true
+    },
+    "mcp__playwright__browser_run_code": {
+      "autoApprove": true
+    },
+    "mcp__playwright__browser_evaluate": {
+      "autoApprove": true
+    },
+    "mcp__playwright__browser_take_screenshot": {
+      "autoApprove": true
+    },
+    "mcp__playwright__browser_wait_for": {
+      "autoApprove": true
+    }
+  }
+}

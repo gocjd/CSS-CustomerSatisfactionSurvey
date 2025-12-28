@@ -14,10 +14,12 @@ import {
   type OnEdgesChange,
   type OnConnect,
   type Connection,
+  type XYPosition,
   applyNodeChanges,
   applyEdgeChanges,
   type NodeMouseHandler,
   BackgroundVariant,
+  SelectionMode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -30,6 +32,8 @@ import type { SurveyNode, SurveyEdge, QuestionNode } from '@/types';
 import { CanvasControls } from './CanvasControls';
 import { ContextMenu } from './ContextMenu';
 import { DeletableEdge } from './edges/DeletableEdge';
+import { MiniMapNode } from './MiniMapNode';
+import { DraggableMiniMap } from './DraggableMiniMap';
 
 const edgeTypes = {
   deletable: DeletableEdge,
@@ -50,13 +54,30 @@ const defaultEdgeOptions = {
 
 export function CanvasArea() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const { fitView, screenToFlowPosition } = useReactFlow();
+  const { fitView, screenToFlowPosition, setViewport } = useReactFlow();
 
   // Store
   const nodes = useSurveyStore((state) => state.nodes);
-  const edges = useSurveyStore((state) => state.edges);
+  const rawEdges = useSurveyStore((state) => state.edges);
+
+  // Calculate offsets for edges with same source-target pairs
+  const edges = rawEdges.map((edge) => {
+    const sameTargetEdges = rawEdges.filter(
+      (e) => e.source === edge.source && e.target === edge.target
+    );
+
+    if (sameTargetEdges.length > 1) {
+      const edgeIndex = sameTargetEdges.findIndex((e) => e.id === edge.id);
+      const totalEdges = sameTargetEdges.length;
+      // Calculate offset: spread edges evenly (-1, -0.5, 0, 0.5, 1 for 5 edges)
+      const offset = (edgeIndex - (totalEdges - 1) / 2) * 30;
+      return { ...edge, data: { ...edge.data, offset } };
+    }
+    return edge;
+  });
   const selectedNodeId = useSurveyStore((state) => state.selectedNodeId);
   const isDarkMode = useUIStore((state) => state.isDarkMode);
+  const selectedQuestionType = useUIStore((state) => state.selectedQuestionType);
   const contextMenu = useUIStore((state) => state.contextMenu);
 
   // Actions
@@ -66,17 +87,38 @@ export function CanvasArea() {
 
   // 초기 뷰 맞춤
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+    // 캔버스 데이터가 로드되고 컨테이너가 렌더링된 후 뷰 맞춤
     if (nodes.length > 0) {
-      setTimeout(() => {
-        fitView({ padding: 0.2, duration: 300 });
-      }, 100);
+      timer = setTimeout(() => {
+        try {
+          // viewport가 이미 NaN인 경우를 대비해 fitView 전에 좌표 유효성 체크는 ReactFlow가 내부적으로 수행함
+          fitView({ padding: 0.2, duration: 400 });
+        } catch (error) {
+          console.warn('fitView failed on mount:', error);
+        }
+      }, 500); // 넉넉한 지연 시간으로 레이아웃 안정화 대기
     }
-  }, []);
+    return () => clearTimeout(timer);
+  }, []); // 마운트 시 최초 1회만 실행
 
   // 노드 변경 핸들러
   const onNodesChange: OnNodesChange<SurveyNode> = useCallback(
     (changes) => {
-      const updatedNodes = applyNodeChanges(changes, nodes) as SurveyNode[];
+      // 위치 변경 시 NaN 방어
+      const sanitizedChanges = changes.map(change => {
+        if (change.type === 'position' && change.position) {
+          return {
+            ...change,
+            position: {
+              x: isNaN(change.position.x) ? 0 : change.position.x,
+              y: isNaN(change.position.y) ? 0 : change.position.y,
+            }
+          };
+        }
+        return change;
+      });
+      const updatedNodes = applyNodeChanges(sanitizedChanges, nodes) as SurveyNode[];
       surveyActions.setNodes(updatedNodes);
 
       // 위치 변경 시 히스토리 저장
@@ -89,6 +131,15 @@ export function CanvasArea() {
     },
     [nodes, edges, surveyActions, historyActions]
   );
+
+  // 뷰포트 이동 핸들러 (NaN 보호)
+  const onMove = useCallback((event: any, viewport: { x: number; y: number; zoom: number }) => {
+    if (isNaN(viewport.x) || isNaN(viewport.y) || isNaN(viewport.zoom)) {
+      console.warn('NaN Viewport detected and blocked', viewport);
+      // NaN이 감지되면 즉시 기본값으로 리셋 시도 (React Flow 내부 상태 보호)
+      setViewport({ x: 0, y: 0, zoom: 0.8 }, { duration: 0 });
+    }
+  }, [setViewport]);
 
   // 엣지 변경 핸들러
   const onEdgesChange: OnEdgesChange<SurveyEdge> = useCallback(
@@ -156,7 +207,6 @@ export function CanvasArea() {
         );
 
         surveyActions.setDirty(true);
-        surveyActions.clearErrors(); // 새로운 연결 시 에러 초기화
       }
     },
     [surveyActions, uiActions]
@@ -200,11 +250,38 @@ export function CanvasArea() {
     [uiActions]
   );
 
-  // 빈 공간 클릭 핸들러
-  const onPaneClick = useCallback(() => {
-    surveyActions.selectNode(null);
-    uiActions.closeContextMenu();
-  }, [surveyActions, uiActions]);
+  // 캔버스 빈 공간 클릭 핸들러
+  const onPaneClick = useCallback(
+    (event: React.MouseEvent) => {
+      const selectedQuestionType = useUIStore.getState().selectedQuestionType;
+
+      // 선택된 질문 타입이 있으면 해당 위치에 노드 추가
+      if (selectedQuestionType) {
+        const position = screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        if (isNaN(position.x) || isNaN(position.y)) {
+          console.error('Calculated position is NaN, cannot add node.');
+          return;
+        }
+
+        surveyActions.addQuestionNode(selectedQuestionType as any, position);
+        surveyActions.setDirty(true);
+
+        // 질문 타입 선택 해제
+        uiActions.setSelectedQuestionType(null);
+        uiActions.showToast('질문이 추가되었습니다.', 'success');
+      } else {
+        // 질문 타입이 선택되지 않았으면 설문 공통 설정 표시
+        surveyActions.selectNode(null);
+        uiActions.openPropertyPanel();
+        uiActions.setPropertyPanelTab('basic');
+      }
+    },
+    [screenToFlowPosition, surveyActions, uiActions]
+  );
 
   // 드롭 핸들러 (팔레트에서 드래그)
   const onDrop = useCallback(
@@ -214,16 +291,35 @@ export function CanvasArea() {
       const type = event.dataTransfer.getData('application/reactflow');
       if (!type) return;
 
-      const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
+      // 마지막 질문 노드 찾기
+      const questionNodes = nodes.filter((n) => n.type === 'question');
+
+      let position: XYPosition;
+
+      if (questionNodes.length === 0) {
+        // 첫 번째 질문 노드: start 노드 기준으로 배치
+        const startNode = nodes.find((n) => n.id === 'start');
+        position = {
+          x: (startNode?.position.x || 0) + 400,
+          y: startNode?.position.y || 200,
+        };
+      } else {
+        // 마지막 질문 노드에서 400px 오른쪽에 자동 배치
+        const lastNode = questionNodes.reduce((max, node) =>
+          node.position.x > max.position.x ? node : max
+        );
+        position = {
+          x: lastNode.position.x + 400,
+          y: lastNode.position.y, // 같은 높이 유지
+        };
+      }
 
       surveyActions.addQuestionNode(type as any, position);
       surveyActions.setDirty(true);
     },
-    [screenToFlowPosition, surveyActions, historyActions, nodes, edges]
+    [nodes, surveyActions, historyActions, edges]
   );
+
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -235,6 +331,11 @@ export function CanvasArea() {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Delete 키로 노드 삭제
       if (event.key === 'Delete' && selectedNodeId) {
+        // 시작/종료 노드는 삭제 불가
+        if (selectedNodeId === 'start' || selectedNodeId === 'end') {
+          uiActions.showToast('시작/종료 노드는 삭제할 수 없습니다.', 'warning');
+          return;
+        }
         surveyActions.deleteNode(selectedNodeId);
       }
 
@@ -283,31 +384,55 @@ export function CanvasArea() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        isValidConnection={(connection) => connection.source !== 'end'}
         onNodeClick={onNodeClick}
         onNodeDoubleClick={onNodeDoubleClick}
         onNodeContextMenu={onNodeContextMenu}
         onPaneClick={onPaneClick}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        onMove={onMove}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
-        fitView
         fitViewOptions={{ padding: 0.2 }}
         deleteKeyCode={['Delete', 'Backspace']}
         minZoom={0.1}
-        maxZoom={2}
+        maxZoom={4}
+        zoomOnScroll={true}
+        panOnScroll={false}
+        panOnDrag={false} // 마우스 왼쪽 드래그로 이동(Pan) 비활성화
+        selectionOnDrag={true} // 드래그 선택 활성화
+        selectionMode={SelectionMode.Partial}
+        panActivationKeyCode="Space" // 스페이스바를 누를 때만 이동 가능
+        multiSelectionKeyCode="Control" // 컨트롤 키를 누르고 선택 가능
+        selectionKeyCode="Shift" // 시프트 키를 누르고 드래그 선택 가능
+        snapToGrid
+        snapGrid={[100, 100]}
         className={cn(
           'bg-gray-50 dark:bg-gray-950',
           'transition-colors duration-200'
         )}
         proOptions={{ hideAttribution: true }}
       >
+        {/* 100px 그리드 배경 (연한 대시 라인) */}
+        <Background
+          variant={BackgroundVariant.Lines}
+          gap={100}
+          size={0.5}
+          color={isDarkMode ? '#374151' : '#d1d5db'}
+          style={{
+            opacity: 0.35,
+            strokeDasharray: '5 5'
+          }}
+        />
+        {/* 교차점 도트 (현재 유지) */}
         <Background
           variant={BackgroundVariant.Dots}
-          gap={20}
-          size={1}
-          color={isDarkMode ? '#374151' : '#e5e7eb'}
+          gap={50}
+          size={0.8}
+          color={isDarkMode ? '#4b5563' : '#9ca3af'}
+          style={{ opacity: 0.3 }}
         />
         <Controls
           showZoom
@@ -315,15 +440,8 @@ export function CanvasArea() {
           showInteractive={false}
           className="!bg-white dark:!bg-gray-800 !border-gray-200 dark:!border-gray-700 !rounded-xl !shadow-lg"
         />
-        <MiniMap
-          nodeStrokeWidth={3}
-          pannable
-          zoomable
-          position="bottom-left"
-          style={{ width: 320, height: 200 }}
-          className="!bg-white dark:!bg-gray-800 !border-gray-200 dark:!border-gray-700 !rounded-xl !shadow-lg"
-          maskColor={isDarkMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)'}
-        />
+        {/* Draggable MiniMap with dock functionality */}
+        <DraggableMiniMap />
 
         {/* 커스텀 컨트롤 패널 */}
         <Panel position="top-right" className="!m-4">

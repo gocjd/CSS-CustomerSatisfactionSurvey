@@ -1,0 +1,209 @@
+### Page state
+- Page URL: http://localhost:5000/builder
+- Page Title: Survey Builder - CSS Visual Editor
+- Page Snapshot:
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e10]: Survey Builder
+        - button "untitled 저장되지 않은 변경사항" [ref=e153]:
+          - text: untitled
+          - generic "저장되지 않은 변경사항" [ref=e154]
+        - generic [ref=e15]:
+          - img [ref=e719]
+          - text: 오류
+      - generic [ref=e18]:
+        - button "새 설문" [ref=e19]
+        - button "불러오기" [ref=e20]:
+          - img
+          - text: 불러오기
+        - button "다른 이름으로 저장" [ref=e21]:
+          - img
+          - text: 다른 이름으로 저장
+        - button "저장" [ref=e22]:
+          - img
+          - text: 저장
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - button [ref=e25]:
+          - img
+        - generic [ref=e26]:
+          - heading "질문 유형" [level=2] [ref=e27]
+          - generic [ref=e28]:
+            - img [ref=e29]
+            - textbox "검색..." [ref=e32]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - img [ref=e36]
+            - generic [ref=e39]:
+              - heading "객관식" [level=3] [ref=e40]
+              - paragraph [ref=e41]: 단일 또는 복수 선택
+          - generic [ref=e42]:
+            - img [ref=e44]
+            - generic [ref=e46]:
+              - heading "텍스트 의견" [level=3] [ref=e47]
+              - paragraph [ref=e48]: 자유 텍스트 입력
+          - generic [ref=e49]:
+            - img [ref=e51]
+            - generic [ref=e54]:
+              - heading "음성 의견" [level=3] [ref=e55]
+              - paragraph [ref=e56]: 음성 녹음 답변
+          - generic [ref=e57]:
+            - img [ref=e59]
+            - generic [ref=e63]:
+              - heading "이미지 아이템" [level=3] [ref=e64]
+              - paragraph [ref=e65]: 이미지 표시 및 링크
+        - paragraph [ref=e68]: 질문을 드래그하여 캔버스에 추가하세요.
+      - application [ref=e70]:
+        - generic [ref=e72]:
+          - generic:
+            - generic:
+              - img
+              - img:
+                - group "Edge from start to Q1" [ref=e155] [cursor=pointer]
+              - img:
+                - group "Edge from Q2 to Q3" [ref=e452] [cursor=pointer]
+              - img:
+                - group "Edge from Q3 to Q4" [ref=e579] [cursor=pointer]
+              - img:
+                - group "Edge from Q4 to end" [ref=e582] [cursor=pointer]
+            - generic:
+              - generic [ref=e161]:
+                - button "연결선 사이에 질문 추가" [ref=e162]:
+                  - img [ref=e163]
+                - button "연결 삭제" [ref=e164]:
+                  - img [ref=e165]
+              - generic [ref=e465]:
+                - button "연결선 사이에 질문 추가" [ref=e466]:
+                  - img [ref=e467]
+                - button "연결 삭제" [ref=e468]:
+                  - img [ref=e469]
+              - generic [ref=e585]:
+                - button "연결선 사이에 질문 추가" [ref=e586]:
+                  - img [ref=e587]
+                - button "연결 삭제" [ref=e588]:
+                  - img [ref=e589]
+              - generic [ref=e592]:
+                - button "연결선 사이에 질문 추가" [ref=e593]:
+                  - img [ref=e594]
+                - button "연결 삭제" [ref=e595]:
+                  - img [ref=e596]
+            - generic:
+              - group [ref=e80]:
+                - generic [ref=e82]:
+                  - img [ref=e83]
+                  - generic [ref=e85]: 시작
+              - group [ref=e87]:
+                - generic [ref=e89]:
+                  - img [ref=e90]
+                  - generic [ref=e92]: 종료
+              - group [ref=e175]:
+                - generic [ref=e176]:
+                  - generic [ref=e178]:
+                    - generic [ref=e179]:
+                      - img [ref=e181]
+                      - img [ref=e189]
+                      - generic [ref=e192]:
+                        - generic [ref=e193]: Q1
+                        - generic [ref=e194]: 객관식 질문
+                    - generic [ref=e195]:
+                      - generic [ref=e196]: 필수
+                      - img [ref=e721]
+                  - generic [ref=e197]:
+                    - paragraph [ref=e198]: 질문을 입력하세요.
+                    - generic [ref=e199]:
+                      - generic [ref=e200]:
+                        - img [ref=e201]
+                        - text: 객관식
+                      - generic [ref=e204]: 단일
+                  - generic [ref=e207]: 단일
+                  - generic [ref=e723]: 이 노드에서 종료(End) 지점으로 도달할 수 없습니다. 흐름이 끊겼습니다.
+              - group [ref=e479]:
+                - generic [ref=e480]:
+                  - generic [ref=e482]:
+                    - generic [ref=e483]:
+                      - img [ref=e485]
+                      - img [ref=e493]
+                      - generic [ref=e495]:
+                        - generic [ref=e496]: Q2
+                        - generic [ref=e497]: 텍스트 질문
+                    - img [ref=e726]
+                  - generic [ref=e498]:
+                    - paragraph [ref=e499]: 의견을 입력해 주세요.
+                    - generic [ref=e500]:
+                      - generic [ref=e501]:
+                        - img [ref=e502]
+                        - text: 텍스트
+                      - generic [ref=e504]: 단일
+                  - generic [ref=e507]: 단일
+                  - generic [ref=e728]: 시작 지점에서 도달할 수 없는 노드입니다. (연결 끊김)
+              - group [ref=e334]:
+                - generic [ref=e335]:
+                  - generic [ref=e337]:
+                    - generic [ref=e338]:
+                      - img [ref=e340]
+                      - img [ref=e348]
+                      - generic [ref=e351]:
+                        - generic [ref=e352]: Q3
+                        - generic [ref=e353]: 음성 질문
+                    - img [ref=e730]
+                  - generic [ref=e354]:
+                    - paragraph [ref=e355]: 음성으로 의견을 말씀해 주세요.
+                    - generic [ref=e356]:
+                      - generic [ref=e357]:
+                        - img [ref=e358]
+                        - text: 음성
+                      - generic [ref=e361]: 단일
+                  - generic [ref=e364]: 단일
+                  - generic [ref=e732]: 시작 지점에서 도달할 수 없는 노드입니다. (연결 끊김)
+              - group [ref=e599]:
+                - generic [ref=e600]:
+                  - generic [ref=e602]:
+                    - generic [ref=e603]:
+                      - img [ref=e605]
+                      - img [ref=e613]
+                      - generic [ref=e617]:
+                        - generic [ref=e618]: Q4
+                        - generic [ref=e619]: 이미지 질문
+                    - img [ref=e735]
+                  - generic [ref=e620]:
+                    - paragraph
+                    - generic [ref=e621]:
+                      - generic [ref=e622]:
+                        - img [ref=e623]
+                        - text: 음성
+                      - generic [ref=e627]: 단일
+                  - generic [ref=e630]: 단일
+                  - generic [ref=e737]: 시작 지점에서 도달할 수 없는 노드입니다. (연결 끊김)
+        - img
+        - generic "Control Panel" [ref=e93]:
+          - button "Zoom In" [ref=e94] [cursor=pointer]:
+            - img [ref=e95]
+          - button "Zoom Out" [ref=e97] [cursor=pointer]:
+            - img [ref=e98]
+          - button "Fit View" [ref=e100] [cursor=pointer]:
+            - img [ref=e101]
+        - img "Mini Map" [ref=e104]
+        - generic [ref=e108]:
+          - button "확대 (Ctrl++)" [ref=e109]:
+            - img
+          - button "축소 (Ctrl+-)" [ref=e110]:
+            - img
+          - button "전체 보기" [ref=e111]:
+            - img
+          - button "실행 취소 (Ctrl+Z)" [ref=e287]:
+            - img
+          - button "다시 실행 (Ctrl+Y)" [disabled]:
+            - img
+          - button "자동 정렬" [active] [ref=e114]:
+            - img
+          - button "다크 모드" [ref=e115]:
+            - img
+  - button "Open Next.js Dev Tools" [ref=e122] [cursor=pointer]:
+    - img [ref=e123]
+  - alert [ref=e126]
+```

@@ -10,7 +10,11 @@ export type {
   SurveySettings,
   Section,
   Survey,
+  Layout,
+  LayoutNode,
+  LayoutEdge,
 } from './survey';
+
 
 export { DEFAULT_SURVEY } from './survey';
 

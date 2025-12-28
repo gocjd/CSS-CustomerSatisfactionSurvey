@@ -153,7 +153,7 @@ export function BranchingTab({ question, nodeId }: BranchingTabProps) {
                 : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
             )}
           >
-            <div className="font-semibold text-xs text-gray-900 dark:text-gray-100">단일 경로</div>
+            <div className="font-semibold text-xs text-gray-900 dark:text-gray-100">단일 분기</div>
             <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">
               모든 답변이 공통 질문으로 이동
             </div>
@@ -208,6 +208,10 @@ export function BranchingTab({ question, nodeId }: BranchingTabProps) {
           </Button>
         </div>
 
+        <div className="text-[10px] text-gray-500 dark:text-gray-400 bg-blue-50/30 dark:bg-blue-900/10 p-2 rounded border border-blue-100/30 dark:border-blue-900/20">
+          <span className="font-medium text-blue-600 dark:text-blue-400">💡 팁:</span> 왼쪽 핸들을 드래그하여 옵션 순서를 변경할 수 있으며, 변경된 순서는 캔버스 노드의 포트 순서에도 즉시 반영됩니다.
+        </div>
+
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -234,6 +238,7 @@ export function BranchingTab({ question, nodeId }: BranchingTabProps) {
                       onUpdate={handleUpdateOption}
                       onRemove={handleRemoveOption}
                       isRemovable={options.length > 1}
+                      showScore={question.displayType === 'likert_scale'}
                     />
                     {isMultiBranch && (
                       <div className="flex items-center gap-2 px-3 py-1.5 ml-8 bg-white dark:bg-gray-900/50 rounded-md border border-gray-100 dark:border-gray-800/50 text-[11px]">

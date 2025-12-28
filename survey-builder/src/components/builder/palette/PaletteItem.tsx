@@ -5,7 +5,7 @@
 import { memo } from 'react';
 import { ImageIcon, ListChecks, MessageSquare, Mic } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUIActions } from '@/stores';
+import { useUIStore, useUIActions } from '@/stores';
 import type { QuestionType } from '@/types';
 
 interface PaletteItemProps {
@@ -53,9 +53,15 @@ function PaletteItemComponent({
   icon,
   compact = false,
 }: PaletteItemProps) {
+  const uiActions = useUIActions();
+  const selectedQuestionType = useUIStore((state) => state.selectedQuestionType);
+  const isSelected = selectedQuestionType === type;
+
+  const handleClick = () => {
+    uiActions.setSelectedQuestionType(isSelected ? null : type);
+  };
   const Icon = iconMap[icon];
   const colors = colorMap[type];
-  const uiActions = useUIActions();
 
   const handleDragStart = (event: React.DragEvent) => {
     event.dataTransfer.setData('application/reactflow', type);
@@ -71,13 +77,14 @@ function PaletteItemComponent({
     return (
       <div
         draggable
+        onClick={handleClick}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         className={cn(
           'w-10 h-10 flex items-center justify-center',
-          'rounded-xl border-2 cursor-grab active:cursor-grabbing',
+          'rounded-xl border-2 cursor-pointer',
           colors.bg,
-          colors.border,
+          isSelected ? 'border-indigo-600 ring-2 ring-indigo-300' : colors.border,
           'transition-all duration-200',
           'hover:scale-110 hover:shadow-md'
         )}
@@ -92,13 +99,14 @@ function PaletteItemComponent({
   return (
     <div
       draggable
+      onClick={handleClick}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       className={cn(
         'flex items-center gap-3 p-3',
-        'rounded-xl border-2 cursor-grab active:cursor-grabbing',
+        'rounded-xl border-2 cursor-pointer',
         colors.bg,
-        colors.border,
+        isSelected ? 'border-indigo-600 dark:border-indigo-500 ring-2 ring-indigo-300 dark:ring-indigo-600' : colors.border,
         'transition-all duration-200',
         'hover:shadow-md hover:scale-[1.02]',
         'group'

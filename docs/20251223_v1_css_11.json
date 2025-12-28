@@ -1,0 +1,522 @@
+{
+  "surveyId": "CS2024002",
+  "version": "1.0",
+  "title": "2024년 고객 경험 개선을 위한 설문조사",
+  "description": "고객님의 소중한 의견을 듣고 더 나은 서비스를 제공하고자 합니다.",
+  "language": "ko",
+  "supportedLanguages": [
+    "ko",
+    "en",
+    "ja"
+  ],
+  "creator": {
+    "name": "김고객연구",
+    "department": "고객만족경영팀",
+    "email": "survey@company.com"
+  },
+  "schedule": {
+    "date": {
+      "start": "2024-01-15",
+      "end": "2024-02-15"
+    },
+    "time": {
+      "start": "09:00:00",
+      "end": "18:00:00"
+    },
+    "offtime": [
+      {
+        "name": "점심시간",
+        "start": "12:00:00",
+        "end": "13:00:00"
+      }
+    ],
+    "timeZone": "Asia/Seoul"
+  },
+  "settings": {
+    "allowAnonymous": false,
+    "allowRevision": true,
+    "estimatedDuration": 15,
+    "showProgress": true,
+    "randomizeQuestions": false,
+    "requireAllQuestions": true,
+    "analytics": {
+      "trackingEnabled": true,
+      "collectMetadata": [
+        "device",
+        "location",
+        "duration"
+      ]
+    }
+  },
+  "sections": [
+    {
+      "sectionId": "SEC1",
+      "title": "기본 정보",
+      "description": "응답자 기본 정보를 수집합니다.",
+      "questionIds": [
+        "Q1"
+      ],
+      "required": true
+    },
+    {
+      "sectionId": "SEC2",
+      "title": "서비스 이용",
+      "description": "서비스 이용 현황을 파악합니다.",
+      "questionIds": [
+        "Q2",
+        "Q3",
+        "Q4",
+        "Q5"
+      ],
+      "required": true
+    },
+    {
+      "sectionId": "SEC3",
+      "title": "개선 의견",
+      "description": "개선을 위한 의견을 수집합니다.",
+      "questionIds": [
+        "Q6",
+        "Q7"
+      ],
+      "required": false
+    }
+  ],
+  "questions": [
+    {
+      "questionId": "Q1",
+      "title": "연령대",
+      "sectionId": "SEC1",
+      "questionType": "multiple_choice",
+      "promptType": "text_prompt",
+      "prompt": "귀하의 연령대를 선택해 주세요.",
+      "importance": "high",
+      "required": true,
+      "validation": {
+        "minSelections": 1,
+        "maxSelections": 1
+      },
+      "options": [
+        {
+          "value": "1",
+          "label": "20대 이하",
+          "score": 1
+        },
+        {
+          "value": "2",
+          "label": "30대",
+          "score": 2
+        },
+        {
+          "value": "3",
+          "label": "40대",
+          "score": 3
+        },
+        {
+          "value": "4",
+          "label": "50대",
+          "score": 4
+        },
+        {
+          "value": "5",
+          "label": "60대 이상",
+          "score": 5
+        }
+      ],
+      "nextQuestion": "Q2"
+    },
+    {
+      "questionId": "Q2",
+      "title": "서비스 이용 빈도",
+      "sectionId": "SEC2",
+      "questionType": "multiple_choice",
+      "promptType": "voice_prompt",
+      "prompt": "audio_files/frequency_question.mp3",
+      "importance": "high",
+      "required": true,
+      "validation": {
+        "minSelections": 1,
+        "maxSelections": 1
+      },
+      "audio": {
+        "format": "mp3",
+        "duration": 15,
+        "hasTranscript": true,
+        "transcript": "서비스를 얼마나 자주 이용하시나요?"
+      },
+      "options": [
+        {
+          "value": "1",
+          "label": "주 1회 이상",
+          "score": 5
+        },
+        {
+          "value": "2",
+          "label": "월 2-3회",
+          "score": 4
+        },
+        {
+          "value": "3",
+          "label": "월 1회",
+          "score": 3
+        },
+        {
+          "value": "4",
+          "label": "2-3개월에 1회",
+          "score": 2
+        },
+        {
+          "value": "5",
+          "label": "거의 이용하지 않음",
+          "score": 1
+        }
+      ],
+      "nextQuestion": {
+        "1": "Q3",
+        "2": "Q3",
+        "3": "Q3",
+        "4": "Q4",
+        "5": "Q5"
+      }
+    },
+    {
+      "questionId": "Q3",
+      "title": "서비스 만족도",
+      "sectionId": "SEC2",
+      "questionType": "multiple_choice",
+      "promptType": "text_prompt",
+      "prompt": "서비스에 대해 전반적으로 얼마나 만족하십니까?",
+      "importance": "critical",
+      "required": true,
+      "validation": {
+        "minSelections": 1,
+        "maxSelections": 1
+      },
+      "displayType": "likert_scale",
+      "options": [
+        {
+          "value": "5",
+          "label": "매우 만족",
+          "score": 5
+        },
+        {
+          "value": "4",
+          "label": "만족",
+          "score": 4
+        },
+        {
+          "value": "3",
+          "label": "보통",
+          "score": 3
+        },
+        {
+          "value": "2",
+          "label": "불만족",
+          "score": 2
+        },
+        {
+          "value": "1",
+          "label": "매우 불만족",
+          "score": 1
+        }
+      ],
+      "nextQuestion": "Q6"
+    },
+    {
+      "questionId": "Q4",
+      "title": "저이용 사유",
+      "sectionId": "SEC2",
+      "questionType": "text_opinion",
+      "promptType": "text_prompt",
+      "prompt": "서비스 이용 빈도가 낮은 이유를 자세히 설명해 주세요.",
+      "importance": "medium",
+      "required": false,
+      "validation": {
+        "minLength": 10,
+        "maxLength": 1000,
+        "pattern": null
+      },
+      "placeholder": "최소 10자 이상 입력해주세요.",
+      "nextQuestion": "Q6"
+    },
+    {
+      "questionId": "Q5",
+      "title": "미이용 사유(음성)",
+      "sectionId": "SEC2",
+      "questionType": "voice_opinion",
+      "promptType": "voice_prompt",
+      "prompt": "audio_files/low_usage_reason.mp3",
+      "importance": "medium",
+      "required": false,
+      "audio": {
+        "format": "mp3",
+        "duration": 20,
+        "maxRecordingTime": 120,
+        "hasTranscript": true,
+        "transcript": "서비스 이용 빈도가 낮은 이유를 말씀해주세요."
+      },
+      "validation": {
+        "minDuration": 5,
+        "maxDuration": 120
+      },
+      "nextQuestion": "Q6"
+    },
+    {
+      "questionId": "Q6",
+      "title": "개선 우선순위",
+      "sectionId": "SEC3",
+      "questionType": "multiple_choice",
+      "promptType": "text_prompt",
+      "prompt": "향후 서비스 개선을 위해 가장 중요하다고 생각하는 항목은 무엇입니까?",
+      "importance": "high",
+      "required": false,
+      "validation": {
+        "minSelections": 1,
+        "maxSelections": 3
+      },
+      "options": [
+        {
+          "value": "1",
+          "label": "사용 편의성",
+          "score": 5,
+          "category": "UX"
+        },
+        {
+          "value": "2",
+          "label": "서비스 품질",
+          "score": 5,
+          "category": "Quality"
+        },
+        {
+          "value": "3",
+          "label": "가격 정책",
+          "score": 4,
+          "category": "Price"
+        },
+        {
+          "value": "4",
+          "label": "고객 지원",
+          "score": 5,
+          "category": "Support"
+        },
+        {
+          "value": "5",
+          "label": "새로운 기능 추가",
+          "score": 4,
+          "category": "Features"
+        }
+      ],
+      "nextQuestion": "Q7"
+    },
+    {
+      "questionId": "Q7",
+      "title": "최종 의견",
+      "sectionId": "SEC3",
+      "questionType": "voice_opinion",
+      "promptType": "voice_prompt",
+      "prompt": "audio_files/final_feedback.mp3",
+      "importance": "medium",
+      "required": false,
+      "audio": {
+        "format": "mp3",
+        "duration": 25,
+        "maxRecordingTime": 180,
+        "hasTranscript": true,
+        "transcript": "마지막으로 저희 서비스 개선을 위한 의견을 말씀해주세요."
+      },
+      "validation": {
+        "minDuration": 5,
+        "maxDuration": 180
+      },
+      "nextQuestion": null
+    }
+  ],
+  "layout": {
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start",
+        "position": {
+          "x": 100,
+          "y": 100
+        }
+      },
+      {
+        "id": "Q1",
+        "type": "question",
+        "position": {
+          "x": 329.9858367020728,
+          "y": 244.85653585866027
+        }
+      },
+      {
+        "id": "Q2",
+        "type": "question",
+        "position": {
+          "x": 697.1307171732052,
+          "y": 384.5696075759808
+        }
+      },
+      {
+        "id": "Q3",
+        "type": "question",
+        "position": {
+          "x": 1451.749896291931,
+          "y": 517.4247271048484
+        }
+      },
+      {
+        "id": "Q4",
+        "type": "question",
+        "position": {
+          "x": 1589.3648283904872,
+          "y": 787.4757911081105
+        }
+      },
+      {
+        "id": "Q5",
+        "type": "question",
+        "position": {
+          "x": 1592.178494407404,
+          "y": 1175.886383069042
+        }
+      },
+      {
+        "id": "Q6",
+        "type": "question",
+        "position": {
+          "x": 2245.376584984297,
+          "y": 962.873703194666
+        }
+      },
+      {
+        "id": "Q7",
+        "type": "question",
+        "position": {
+          "x": 2723.2560517582247,
+          "y": 1026.2456773155536
+        }
+      },
+      {
+        "id": "end",
+        "type": "end",
+        "position": {
+          "x": 3337.265273485043,
+          "y": 1185.9907782731814
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "start-Q1",
+        "source": "start",
+        "target": "Q1",
+        "sourceHandle": "output-default",
+        "targetHandle": "input",
+        "type": "deletable"
+      },
+      {
+        "id": "Q1-Q2",
+        "source": "Q1",
+        "target": "Q2",
+        "sourceHandle": "output-default",
+        "targetHandle": "input",
+        "type": "deletable"
+      },
+      {
+        "id": "Q2-1-Q3",
+        "source": "Q2",
+        "target": "Q3",
+        "sourceHandle": "output-1",
+        "targetHandle": "input",
+        "type": "deletable",
+        "data": {
+          "condition": "1"
+        }
+      },
+      {
+        "id": "Q2-2-Q3",
+        "source": "Q2",
+        "target": "Q3",
+        "sourceHandle": "output-2",
+        "targetHandle": "input",
+        "type": "deletable",
+        "data": {
+          "condition": "2"
+        }
+      },
+      {
+        "id": "Q2-3-Q3",
+        "source": "Q2",
+        "target": "Q3",
+        "sourceHandle": "output-3",
+        "targetHandle": "input",
+        "type": "deletable",
+        "data": {
+          "condition": "3"
+        }
+      },
+      {
+        "id": "Q2-4-Q4",
+        "source": "Q2",
+        "target": "Q4",
+        "sourceHandle": "output-4",
+        "targetHandle": "input",
+        "type": "deletable",
+        "data": {
+          "condition": "4"
+        }
+      },
+      {
+        "id": "Q2-5-Q5",
+        "source": "Q2",
+        "target": "Q5",
+        "sourceHandle": "output-5",
+        "targetHandle": "input",
+        "type": "deletable",
+        "data": {
+          "condition": "5"
+        }
+      },
+      {
+        "id": "Q3-Q6",
+        "source": "Q3",
+        "target": "Q6",
+        "sourceHandle": "output-default",
+        "targetHandle": "input",
+        "type": "deletable"
+      },
+      {
+        "id": "Q4-Q6",
+        "source": "Q4",
+        "target": "Q6",
+        "sourceHandle": "output-default",
+        "targetHandle": "input",
+        "type": "deletable"
+      },
+      {
+        "id": "Q5-Q6",
+        "source": "Q5",
+        "target": "Q6",
+        "sourceHandle": "output-default",
+        "targetHandle": "input",
+        "type": "deletable"
+      },
+      {
+        "id": "Q6-Q7",
+        "source": "Q6",
+        "target": "Q7",
+        "sourceHandle": "output-default",
+        "targetHandle": "input",
+        "type": "deletable"
+      },
+      {
+        "id": "Q7-end",
+        "source": "Q7",
+        "target": "end",
+        "sourceHandle": "output-default",
+        "targetHandle": "input",
+        "type": "deletable"
+      }
+    ]
+  }
+}

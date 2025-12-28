@@ -1,100 +1,174 @@
 // types/survey.ts - 설문 관련 타입 정의
 
-export type Language = 'ko' | 'en' | 'ja';
+import type { Question } from './question';
+export type { Question } from './question';
 
+// 언어 타입
+export type Language = 'ko' | 'en' | 'ja' | 'zh' | 'es';
+
+// 작성자 정보
 export interface Creator {
   name: string;
-  department: string;
-  email: string;
+  department?: string;
+  email?: string;
+  phone?: string;
 }
 
+// 비운영 시간
 export interface OffTime {
   name: string;
-  start: string;
-  end: string;
+  start: string; // HH:mm:ss
+  end: string;   // HH:mm:ss
 }
 
+// 스케줄
 export interface Schedule {
-  date: { start: string; end: string };
-  time: { start: string; end: string };
-  offtime: OffTime[];
-  timeZone: string;
+  date: {
+    start: string; // YYYY-MM-DD
+    end: string;   // YYYY-MM-DD
+  };
+  time?: {
+    start: string; // HH:mm:ss
+    end: string;   // HH:mm:ss
+  };
+  offtime?: OffTime[];
+  timeZone?: string;
 }
 
+// 분석 설정
 export interface AnalyticsSettings {
   trackingEnabled: boolean;
-  collectMetadata: string[];
+  collectMetadata?: string[];
 }
 
+// 설정
 export interface SurveySettings {
-  allowAnonymous: boolean;
-  allowRevision: boolean;
-  estimatedDuration: number;
-  showProgress: boolean;
-  randomizeQuestions: boolean;
-  requireAllQuestions: boolean;
-  analytics: AnalyticsSettings;
+  allowAnonymous?: boolean;
+  allowRevision?: boolean;
+  estimatedDuration?: number; // minutes
+  showProgress?: boolean;
+  randomizeQuestions?: boolean;
+  requireAllQuestions?: boolean;
+  analytics?: AnalyticsSettings;
 }
 
+// 섹션
 export interface Section {
   sectionId: string;
   title: string;
-  description: string;
+  description?: string;
   questionIds: string[];
-  required: boolean;
+  required?: boolean;
 }
 
-// Question 타입은 question.ts에서 import
-import type { Question } from './question';
+// 레이아웃 노드 (시각적 위치 정보)
+export interface LayoutNode {
+  id: string;
+  position: {
+    x: number;
+    y: number;
+  };
+  type?: 'start' | 'end' | 'question';
+}
 
+// 레이아웃 엣지
+export interface LayoutEdge {
+  id: string;
+  source: string;
+  target: string;
+  sourceHandle?: string;
+  targetHandle?: string;
+  condition?: string;
+}
+
+// 레이아웃
+export interface Layout {
+  nodes: LayoutNode[];
+  edges: LayoutEdge[];
+}
+
+// 설문
 export interface Survey {
   surveyId: string;
   version: string;
   title: string;
-  description: string;
+  description?: string;
   language: Language;
-  supportedLanguages: Language[];
-  creator: Creator;
-  schedule: Schedule;
-  settings: SurveySettings;
+  supportedLanguages?: Language[];
+  creator?: Creator;
+  schedule?: Schedule;
+  settings?: SurveySettings;
   sections: Section[];
   questions: Question[];
-  // UI 레이아웃 상태 (좌표 등)
-  layout?: {
-    nodes: any[];
-    edges: any[];
-  };
+  layout?: Layout;
 }
 
-// 새 설문 생성 시 기본값
-export const DEFAULT_SURVEY: Omit<Survey, 'questions' | 'sections'> = {
-  surveyId: '',
-  version: '1.0',
-  title: '새 설문조사',
-  description: '',
+// 설문 문제 (렌더링용 간단한 형식)
+export interface SurveyQuestion {
+  id: string;
+  type: 'choice' | 'rating' | 'text' | 'boolean' | 'slider' | 'checkbox';
+  text: string;
+  required?: boolean;
+  options?: string[];
+  min?: number;
+  max?: number;
+  labels?: Record<string | number, string>;
+  placeholder?: string;
+}
+
+// 설문 데이터 (렌더링용 간단한 형식)
+export interface SurveyData {
+  title: string;
+  description?: string;
+  questions: SurveyQuestion[];
+}
+
+// 기본 설문
+export const DEFAULT_SURVEY: Omit<Survey, 'surveyId'> = {
+  version: '1.0.0',
+  title: '새로운 설문',
+  description: '설명을 입력하세요.',
   language: 'ko',
-  supportedLanguages: ['ko'],
+  supportedLanguages: ['ko', 'en'],
   creator: {
-    name: '',
-    department: '',
+    name: '작성자',
+    department: '부서',
     email: '',
+    phone: '',
   },
   schedule: {
-    date: { start: '', end: '' },
-    time: { start: '09:00:00', end: '18:00:00' },
+    date: {
+      start: new Date().toISOString().split('T')[0],
+      end: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    },
+    time: {
+      start: '09:00:00',
+      end: '18:00:00',
+    },
     offtime: [],
     timeZone: 'Asia/Seoul',
   },
   settings: {
-    allowAnonymous: true,
+    allowAnonymous: false,
     allowRevision: true,
-    estimatedDuration: 10,
+    estimatedDuration: 15,
     showProgress: true,
     randomizeQuestions: false,
-    requireAllQuestions: false,
+    requireAllQuestions: true,
     analytics: {
-      trackingEnabled: false,
-      collectMetadata: [],
+      trackingEnabled: true,
+      collectMetadata: ['device', 'location', 'duration'],
     },
   },
+  sections: [
+    {
+      sectionId: 'SEC1',
+      title: '섹션 1',
+      description: '',
+      questionIds: [],
+      required: true,
+    },
+  ],
+  questions: [],
+  layout: undefined,
 };

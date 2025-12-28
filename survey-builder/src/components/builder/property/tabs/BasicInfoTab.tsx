@@ -8,6 +8,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useSurveyActions, useSurveyStore } from '@/stores';
 import type { Question, Importance } from '@/types';
 import { IMPORTANCE_LABELS, QUESTION_TYPE_LABELS } from '@/types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 
 interface BasicInfoTabProps {
   question: Question;
@@ -17,6 +25,8 @@ interface BasicInfoTabProps {
 export function BasicInfoTab({ question, nodeId }: BasicInfoTabProps) {
   const surveyActions = useSurveyActions();
   const nodes = useSurveyStore((state) => state.nodes);
+  const sections = useSurveyStore((state) => state.sections);
+
 
   const handleChange = useCallback(
     (field: keyof Question, value: any) => {
@@ -57,9 +67,39 @@ export function BasicInfoTab({ question, nodeId }: BasicInfoTabProps) {
         <p className="text-xs text-gray-500 dark:text-gray-400">
           시스템에서 자동 생성되며 수정할 수 없습니다. 설문 내에서 고유합니다.
         </p>
+
+      </div>
+
+      {/* Section Selector */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Section
+        </label>
+        {sections.length > 0 ? (
+          <Select
+            value={question.sectionId}
+            onValueChange={(val) => handleChange('sectionId', val)}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a section" />
+            </SelectTrigger>
+            <SelectContent>
+              {sections.map(sec => (
+                <SelectItem key={sec.sectionId} value={sec.sectionId}>
+                  {sec.title} ({sec.sectionId})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
+            No sections defined. Click on the empty canvas to add sections in Global Settings.
+          </div>
+        )}
       </div>
 
       {/* 질문 제목 */}
+
       <div className="space-y-2">
         <label
           htmlFor="title"
@@ -140,46 +180,50 @@ export function BasicInfoTab({ question, nodeId }: BasicInfoTabProps) {
       </div>
 
       {/* 텍스트 의견인 경우 플레이스홀더 */}
-      {question.questionType === 'text_opinion' && (
-        <div className="space-y-2">
-          <label
-            htmlFor="placeholder"
-            className="text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            입력 안내 문구
-          </label>
-          <Input
-            id="placeholder"
-            value={question.placeholder || ''}
-            onChange={(e) => handleChange('placeholder', e.target.value)}
-            placeholder="예: 자유롭게 의견을 입력해주세요"
-          />
-        </div>
-      )}
+      {
+        question.questionType === 'text_opinion' && (
+          <div className="space-y-2">
+            <label
+              htmlFor="placeholder"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              입력 안내 문구
+            </label>
+            <Input
+              id="placeholder"
+              value={question.placeholder || ''}
+              onChange={(e) => handleChange('placeholder', e.target.value)}
+              placeholder="예: 자유롭게 의견을 입력해주세요"
+            />
+          </div>
+        )
+      }
 
       {/* Likert Scale 옵션 (객관식인 경우) */}
-      {question.questionType === 'multiple_choice' && (
-        <div className="space-y-2">
-          <div className="flex items-center space-x-3">
-            <Checkbox
-              id="likertScale"
-              checked={question.displayType === 'likert_scale'}
-              onCheckedChange={(checked) =>
-                handleChange('displayType', checked ? 'likert_scale' : 'default')
-              }
-            />
-            <label
-              htmlFor="likertScale"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
-            >
-              Likert Scale 형태로 표시
-            </label>
+      {
+        question.questionType === 'multiple_choice' && (
+          <div className="space-y-2">
+            <div className="flex items-center space-x-3">
+              <Checkbox
+                id="likertScale"
+                checked={question.displayType === 'likert_scale'}
+                onCheckedChange={(checked) =>
+                  handleChange('displayType', checked ? 'likert_scale' : 'default')
+                }
+              />
+              <label
+                htmlFor="likertScale"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
+              >
+                Likert Scale
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 pl-7">
+              활성화 시 옵션들이 점수 척도 형태(예: 1-5점 만족도)로 표시됩니다. 주로 동의도, 만족도, 빈도 등의 평가에 사용됩니다.
+            </p>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 pl-7">
-            활성화 시 옵션들이 점수 척도 형태(예: 1-5점 만족도)로 표시됩니다. 주로 동의도, 만족도, 빈도 등의 평가에 사용됩니다.
-          </p>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

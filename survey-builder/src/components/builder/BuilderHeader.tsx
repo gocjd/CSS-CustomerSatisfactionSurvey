@@ -130,10 +130,27 @@ export function BuilderHeader() {
           {isEditingName ? (
             <Input
               autoFocus
-              value={fileName}
-              onChange={(e) => surveyActions.setFileName(e.target.value)}
-              onBlur={() => setIsEditingName(false)}
-              onKeyDown={(e) => e.key === 'Enter' && setIsEditingName(false)}
+              defaultValue={fileName}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const val = (e.target as HTMLInputElement).value.trim();
+                  if (val) {
+                    surveyActions.setFileName(val);
+                    surveyActions.updateSurveyMeta({ title: val });
+                  }
+                  setIsEditingName(false);
+                } else if (e.key === 'Escape') {
+                  setIsEditingName(false);
+                }
+              }}
+              onBlur={(e) => {
+                const val = e.target.value.trim();
+                if (val) {
+                  surveyActions.setFileName(val);
+                  surveyActions.updateSurveyMeta({ title: val });
+                }
+                setIsEditingName(false);
+              }}
               className="h-9 w-64 text-lg font-semibold"
             />
           ) : (
@@ -141,7 +158,8 @@ export function BuilderHeader() {
               onClick={() => setIsEditingName(true)}
               className="flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
             >
-              {fileName || 'untitled'}
+              <span className="opacity-50 text-sm font-normal mr-1">Project:</span>
+              {fileName || survey?.title || 'Untitled Survey'}
               {isDirty && (
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" title="저장되지 않은 변경사항" />
               )}
@@ -166,12 +184,12 @@ export function BuilderHeader() {
       </div>
 
       {/* 오른쪽: 액션 버튼들 */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-shrink-0">
         <Button
           variant="ghost"
           size="sm"
           onClick={handleNewSurvey}
-          className="h-8 text-xs"
+          className="h-8 text-xs whitespace-nowrap"
         >
           새 설문
         </Button>
@@ -180,7 +198,7 @@ export function BuilderHeader() {
           variant="ghost"
           size="sm"
           onClick={handleImport}
-          className="h-8 text-xs"
+          className="h-8 text-xs whitespace-nowrap"
           data-testid="import-button"
         >
           <Upload className="w-4 h-4 mr-1" />
@@ -191,7 +209,7 @@ export function BuilderHeader() {
           variant="ghost"
           size="sm"
           onClick={handleExport}
-          className="h-8 text-xs"
+          className="h-8 text-xs whitespace-nowrap"
         >
           <Download className="w-4 h-4 mr-1" />
           다른 이름으로 저장
@@ -201,7 +219,7 @@ export function BuilderHeader() {
           variant="default"
           size="sm"
           onClick={handleExport}
-          className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700"
+          className="h-8 text-xs bg-indigo-600 hover:bg-indigo-700 whitespace-nowrap"
           data-testid="export-button"
         >
           <Download className="w-4 h-4 mr-1" />

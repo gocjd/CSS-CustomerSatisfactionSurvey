@@ -1,7 +1,5 @@
 'use client';
 
-// components/builder/property/PropertyPanel.tsx - 속성 편집 패널
-
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -14,6 +12,7 @@ import { OptionsTab } from './tabs/OptionsTab';
 import { ValidationTab } from './tabs/ValidationTab';
 import { BranchingTab } from './tabs/BranchingTab';
 import { ImageTab } from './tabs/ImageTab';
+import { GlobalSettingsPanel } from './GlobalSettingsPanel';
 
 export function PropertyPanel() {
   const isPropertyPanelOpen = useUIStore((state) => state.isPropertyPanelOpen);
@@ -23,7 +22,27 @@ export function PropertyPanel() {
   const selectedNodeId = useSurveyStore((state) => state.selectedNodeId);
   const nodes = useSurveyStore((state) => state.nodes);
 
-  // 선택된 노드 찾기
+  // Case 1: No Node Selected -> Global Settings
+  if (!selectedNodeId) {
+    if (!isPropertyPanelOpen) return null; // Or always show? User might want to close it.
+    // For better UX, let's assume if it is "open" but no selection, we show global.
+    // If user explicitly closes it, isOpen becomes false.
+    return (
+      <div className="h-full relative">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 z-10 h-8 w-8"
+          onClick={() => uiActions.closePropertyPanel()}
+        >
+          <X className="w-4 h-4" />
+        </Button>
+        <GlobalSettingsPanel />
+      </div>
+    );
+  }
+
+  // Case 2: Node Selected
   const selectedNode = nodes.find((n) => n.id === selectedNodeId);
   const isQuestionNode = selectedNode?.type === 'question';
   const question = isQuestionNode

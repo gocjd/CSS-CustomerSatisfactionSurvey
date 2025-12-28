@@ -28,16 +28,16 @@ export function BuilderLayout() {
 
       {/* 메인 콘텐츠 */}
       <div className="flex flex-1 overflow-hidden">
-        {/* 왼쪽: 질문 팔레트 */}
-        <QuestionPalette />
-
-        {/* 중앙: 캔버스 */}
         <ReactFlowProvider>
-          <CanvasArea />
-        </ReactFlowProvider>
+          {/* 왼쪽: 질문 팔레트 */}
+          <QuestionPalette />
 
-        {/* 오른쪽: 속성 패널 */}
-        <PropertyPanel />
+          {/* 중앙: 캔버스 */}
+          <CanvasArea />
+
+          {/* 오른쪽: 속성 패널 */}
+          <PropertyPanel />
+        </ReactFlowProvider>
       </div>
 
       {/* 글로벌 UI 컴포넌트 */}

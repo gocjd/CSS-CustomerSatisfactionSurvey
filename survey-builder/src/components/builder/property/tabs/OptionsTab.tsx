@@ -143,12 +143,6 @@ export function OptionsTab({ question, nodeId }: OptionsTabProps) {
           (!) 원활한 분석을 위해 최소 2개의 옵션 구성을 권장합니다.
         </p>
       )}
-
-      <div className="pt-2 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-lg border border-blue-100/50 dark:border-blue-900/20 text-sm text-gray-600 dark:text-gray-300">
-        <p className="font-medium text-blue-600 dark:text-blue-400 mb-1">사용 팁</p>
-        <p>• 왼쪽 핸들을 드래그하여 순서를 변경하세요.</p>
-        <p className="mt-1">• 변경된 순서는 캔버스 노드의 포트 순서에도 즉시 반영됩니다.</p>
-      </div>
     </div>
   );
 }

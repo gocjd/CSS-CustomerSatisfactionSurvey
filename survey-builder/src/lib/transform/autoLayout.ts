@@ -16,8 +16,16 @@ const DEFAULT_OPTIONS: LayoutOptions = {
   direction: 'TB',
   nodeWidth: 280,
   nodeHeight: 120,
-  horizontalSpacing: 100,
-  verticalSpacing: 80,
+  horizontalSpacing: 200,  // 연결선 곡률을 고려하여 간격 증가
+  verticalSpacing: 150,     // 수직 간격도 일관성 있게 조정
+};
+
+// 다른 곳에서 사용할 수 있도록 export
+export const LAYOUT_CONSTANTS = {
+  NODE_WIDTH: 280,
+  NODE_HEIGHT: 120,
+  HORIZONTAL_SPACING: 200,
+  VERTICAL_SPACING: 150,
 };
 
 interface GraphData {

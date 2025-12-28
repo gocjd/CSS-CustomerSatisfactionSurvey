@@ -6,6 +6,7 @@ import { memo, useMemo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { cn } from '@/lib/utils';
 import type { QuestionNode as QuestionNodeType } from '@/types';
+import { useSurveyStore } from '@/stores';
 import {
   ListChecks,
   MessageSquare,
@@ -45,26 +46,31 @@ const questionTypeColors = {
   },
 } as const;
 
-function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) {
+function QuestionNodeComponent({ data, selected, id }: NodeProps<QuestionNodeType>) {
   const { question, hasError, errorMessages } = data;
   const Icon = questionTypeIcons[question.questionType];
   const colors = questionTypeColors[question.questionType];
 
+  // 노드의 현재 위치 가져오기
+  const nodes = useSurveyStore((state) => state.nodes);
+  const currentNode = nodes.find((n) => n.id === id);
+  const xPos = currentNode?.position?.x ?? 0;
+  const yPos = currentNode?.position?.y ?? 0;
+
   // 조건부 분기인 경우 Output 포트 계산
   const outputPorts = useMemo(() => {
-    // 조건부 분기인 경우 Output 포트 계산
-    if (
-      typeof question.nextQuestion === 'object' &&
-      question.nextQuestion !== null
-    ) {
-      return Object.entries(question.nextQuestion).map(([value, targetId]) => ({
-        id: `output-${value}`,
-        label: question.options?.find((o) => o.value === value)?.label || value,
-        value,
+    const isMultiBranch = typeof question.nextQuestion === 'object' && question.nextQuestion !== null;
+
+    // 조건부 분기인 경우: 모든 옵션을 포트로 생성
+    if (isMultiBranch && question.options && question.options.length > 0) {
+      return question.options.map((option) => ({
+        id: `output-${option.value}`,
+        label: option.label,
+        value: option.value,
       }));
     }
 
-    // 기본: 단일 출력 포트
+    // 기본: 단일 출력 포트 (단일 경로 모드이거나 옵션이 없는 경우)
     return [{ id: 'output-default', label: '다음', value: 'default' }];
   }, [question.nextQuestion, JSON.stringify(question.options)]);
 
@@ -73,7 +79,7 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
   return (
     <div
       className={cn(
-        'min-w-[280px] max-w-[320px] rounded-xl border-2 bg-white shadow-lg transition-all duration-200',
+        'min-w-[280px] max-w-[320px] rounded-xl border-2 bg-white shadow-lg',
         'dark:bg-gray-900',
         selected && 'border-indigo-500 ring-4 ring-indigo-100 dark:ring-indigo-900',
         hasError && 'border-red-500 ring-4 ring-red-100 dark:ring-red-900',
@@ -84,15 +90,15 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
       data-has-error={hasError}
       data-question-type={question.questionType}
     >
-      {/* Input Port (Left) */}
+      {/* Input Port (Left) - 더 큰 크기로 연결하기 쉽게 */}
       <Handle
         type="target"
         position={Position.Left}
         id="input"
         className={cn(
-          '!w-4 !h-4 !bg-indigo-500 !border-2 !border-white !rounded-full',
-          '!-left-2 !top-1/2 !-translate-y-1/2',
-          'transition-transform hover:!scale-125'
+          '!w-6 !h-6 !bg-indigo-500 !border-2 !border-white !rounded-full',
+          '!-left-3 !top-1/2 !-translate-y-1/2',
+          'transition-transform hover:!scale-125 z-30'
         )}
         data-handleid="input"
       />
@@ -128,6 +134,15 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {/* 좌표 표시 (디버그용) */}
+          <div className="text-xs bg-white dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-600">
+            <div className="font-mono text-gray-600 dark:text-gray-300">
+              X: <span className="font-bold text-blue-600 dark:text-blue-400">{Math.round(xPos)}</span>
+            </div>
+            <div className="font-mono text-gray-600 dark:text-gray-300">
+              Y: <span className="font-bold text-green-600 dark:text-green-400">{Math.round(yPos)}</span>
+            </div>
+          </div>
           {question.required && (
             <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded-full">
               필수
@@ -175,9 +190,13 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
               Likert Scale
             </span>
           )}
-          {isBranching && (
-            <span className="px-2.5 py-1 text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300 rounded-full">
-              분기
+          {isBranching ? (
+            <span className="px-2.5 py-1 text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300 rounded-full border border-orange-200">
+              조건
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-full border border-blue-200">
+              단일
             </span>
           )}
         </div>
@@ -189,34 +208,38 @@ function QuestionNodeComponent({ data, selected }: NodeProps<QuestionNodeType>) 
           <div
             key={port.id}
             className={cn(
-              'relative flex items-center justify-end px-4 py-3 min-h-[44px]',
+              'relative flex items-center justify-end px-4 py-3 min-h-[44px] group/item',
               index !== outputPorts.length - 1 &&
               'border-b border-gray-100 dark:border-gray-700',
               'transition-colors hover:bg-gray-100 dark:hover:bg-gray-700/50'
             )}
           >
-            {/* Label - 클릭/드래그 시 시각적으로 방해되지 않도록 select-none */}
-            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mr-3 select-none z-0">
-              {port.label}
+
+            {/* Label */}
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 mr-5 select-none z-10 transition-colors group-hover/item:text-indigo-700">
+              {port.label === '다음' ? '단일' : port.label}
             </span>
 
-            {/* Handle - 텍스트 영역까지 확장하여 드래그 편의성 제공 */}
+            {/* Handle - Node의 테두리에 논리적 중심을 맞춤 */}
             <Handle
               type="source"
               position={Position.Right}
               id={port.id}
               className={cn(
-                '!w-full !h-full !border-0 !bg-transparent !opacity-0',
-                'absolute inset-0 z-20 cursor-alias'
+                '!w-4 !h-full !border-0 !bg-transparent !opacity-0 !pointer-events-auto',
+                '!absolute !top-0 !right-0 !translate-x-1/2 !z-30',
+                'cursor-alias',
+                // Click area extension to the left (covers the label)
+                'after:content-[""] after:absolute after:right-0 after:top-0 after:w-[280px] after:h-full after:cursor-alias'
               )}
-              style={{ padding: 0, margin: 0, top: '50%', transform: 'translateY(-50%)', right: 0 }}
               data-handleid={port.id}
             />
 
-            {/* Visual indicator (Circle) - 사용자에게 연결 포트임을 시각적으로 안내 */}
+            {/* Visual indicator (Circle) - 더 큰 크기 */}
             <div className={cn(
-              'w-3.5 h-3.5 border-2 border-white rounded-full z-10 shadow-sm transition-transform',
-              'group-hover:scale-110',
+              'absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2',
+              'w-5 h-5 border-2 border-white rounded-full z-20 shadow-sm transition-all duration-200 pointer-events-none',
+              'group-hover/item:scale-125 group-hover/item:shadow-md',
               port.value === 'default'
                 ? 'bg-emerald-500'
                 : 'bg-orange-500'

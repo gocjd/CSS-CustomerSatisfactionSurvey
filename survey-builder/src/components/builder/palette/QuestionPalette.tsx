@@ -3,12 +3,14 @@
 // components/builder/palette/QuestionPalette.tsx - 질문 팔레트
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Maximize2 } from 'lucide-react';
+import { MiniMap } from '@xyflow/react';
 import { cn } from '@/lib/utils';
 import { useUIStore, useUIActions } from '@/stores';
 import { PaletteItem } from './PaletteItem';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { MiniMapNode } from '../canvas/MiniMapNode';
 import type { QuestionType } from '@/types';
 
 interface PaletteItemData {
@@ -48,6 +50,8 @@ const paletteItems: PaletteItemData[] = [
 export function QuestionPalette() {
   const [searchQuery, setSearchQuery] = useState('');
   const isPaletteOpen = useUIStore((state) => state.isPaletteOpen);
+  const isMiniMapDocked = useUIStore((state) => state.isMiniMapDocked);
+  const isDarkMode = useUIStore((state) => state.isDarkMode);
   const uiActions = useUIActions();
 
   const filteredItems = paletteItems.filter(
@@ -127,11 +131,31 @@ export function QuestionPalette() {
             )}
           </div>
 
-          {/* 도움말 */}
-          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              질문을 드래그하여 캔버스에 추가하세요.
-            </p>
+          {/* 하단: 미니맵 (도킹 시) 또는 도움말 */}
+          <div className="border-t border-gray-100 dark:border-gray-800">
+            {isMiniMapDocked ? (
+              <div className="relative h-48 w-full bg-gray-50 dark:bg-gray-900/50">
+                <div className="absolute top-2 right-2 z-10">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-6 h-6 bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 hover:text-indigo-600"
+                    onClick={() => uiActions.setMiniMapDocked(false)}
+                    title="미니맵 분리"
+                  >
+                    <Maximize2 className="w-3 h-3" />
+                  </Button>
+                </div>
+                {/* MiniMap Portal Target */}
+                <div id="minimap-dock-destination" className="w-full h-full" />
+              </div>
+            ) : (
+              <div className="p-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  질문을 드래그하여 캔버스에 추가하세요.
+                </p>
+              </div>
+            )}
           </div>
         </>
       ) : (

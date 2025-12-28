@@ -38,15 +38,24 @@ interface UIState {
   isDragging: boolean;
   draggedItemType: string | null;
 
+  // 선택된 질문 타입 (클릭하여 추가)
+  selectedQuestionType: string | null;
+
   // 컨텍스트 메뉴
   contextMenu: {
     isOpen: boolean;
     position: { x: number; y: number };
     nodeId: string | null;
   };
+
+  // 미니맵 상태
+  isMiniMapDocked: boolean;
 }
 
 interface UIActions {
+  // 미니맵
+  setMiniMapDocked: (docked: boolean) => void;
+
   // 패널
   togglePalette: () => void;
   togglePropertyPanel: () => void;
@@ -81,6 +90,9 @@ interface UIActions {
   // 드래그
   setDragging: (isDragging: boolean, itemType?: string) => void;
 
+  // 질문 타입 선택
+  setSelectedQuestionType: (questionType: string | null) => void;
+
   // 컨텍스트 메뉴
   openContextMenu: (position: { x: number; y: number }, nodeId: string | null) => void;
   closeContextMenu: () => void;
@@ -111,11 +123,14 @@ const initialState: UIState = {
   isDragging: false,
   draggedItemType: null,
 
+  selectedQuestionType: null,
+
   contextMenu: {
     isOpen: false,
     position: { x: 0, y: 0 },
     nodeId: null,
   },
+  isMiniMapDocked: false,
 };
 
 export const useUIStore = create<UIStore>()(
@@ -123,6 +138,12 @@ export const useUIStore = create<UIStore>()(
     ...initialState,
 
     actions: {
+      setMiniMapDocked: (docked: boolean) => {
+        set((state) => {
+          state.isMiniMapDocked = docked;
+        });
+      },
+
       togglePalette: () => {
         set((state) => {
           state.isPaletteOpen = !state.isPaletteOpen;
@@ -238,6 +259,12 @@ export const useUIStore = create<UIStore>()(
         set((state) => {
           state.isDragging = isDragging;
           state.draggedItemType = isDragging ? (itemType || null) : null;
+        });
+      },
+
+      setSelectedQuestionType: (questionType) => {
+        set((state) => {
+          state.selectedQuestionType = questionType;
         });
       },
 

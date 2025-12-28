@@ -20,6 +20,7 @@ import {
   createEndNode,
   createEdge,
 } from '@/types';
+import { LAYOUT_CONSTANTS } from '@/lib/transform/autoLayout';
 import type { XYPosition } from '@xyflow/react';
 import { useHistoryStore } from './useHistoryStore';
 
@@ -61,6 +62,12 @@ interface SurveyActions {
   selectNode: (nodeId: string | null) => void;
   updateNodePosition: (nodeId: string, position: XYPosition) => void;
   setNodes: (nodes: SurveyNode[]) => void;
+  insertQuestionBetweenEdge: (
+    edgeId: string,
+    sourceNodeId: string,
+    targetNodeId: string,
+    questionType: Question['questionType']
+  ) => string;
 
   // 엣지 관리
   addEdge: (
@@ -157,16 +164,17 @@ export const useSurveyStore = create<SurveyStore>()(
                 type: 'deletable',
               }));
             } else {
-              // 2. 레이아웃 데이터가 없는 경우 (계단식 자동 배치)
+              // 2. 레이아웃 데이터가 없는 경우 (수평 자동 배치)
               const startX = 100;
               const startY = 100;
-              const stepX = 350;
-              const stepY = 150;
+              // autoLayout의 상수와 일관성 있게 사용
+              const stepX = LAYOUT_CONSTANTS.NODE_WIDTH + LAYOUT_CONSTANTS.HORIZONTAL_SPACING; // 280 + 200 = 480
 
+              // 모든 질문 노드를 같은 Y 높이에 배치 (X축만 증가)
               const questionNodes: SurveyNode[] = survey.questions.map((q, index) =>
                 createQuestionNode(q, {
                   x: startX + stepX + index * stepX,
-                  y: startY + (index + 1) * stepY,
+                  y: startY,  // 모든 노드가 같은 높이
                 })
               );
 
@@ -175,7 +183,7 @@ export const useSurveyStore = create<SurveyStore>()(
                 ...questionNodes,
                 createEndNode({
                   x: startX + (survey.questions.length + 1) * stepX,
-                  y: startY + (survey.questions.length + 2) * stepY,
+                  y: startY,  // End 노드도 같은 높이
                 }),
               ];
 
@@ -241,7 +249,8 @@ export const useSurveyStore = create<SurveyStore>()(
               createStartNode({ x: 50, y: 200 }),
               createEndNode({ x: 400, y: 200 }),
             ];
-            state.edges = [];
+            // 시작-종료 노드를 자동으로 연결
+            state.edges = [createEdge('start', 'end')];
             state.selectedNodeId = null;
             state.validationErrors = [];
             state.isValid = true;
@@ -332,10 +341,10 @@ export const useSurveyStore = create<SurveyStore>()(
 
         // 노드 삭제
         deleteNode: (nodeId) => {
-          set((state) => {
-            // start/end 노드는 삭제 불가
-            if (nodeId === 'start' || nodeId === 'end') return;
+          // start/end 노드는 삭제 불가 - 함수 전체에서 빠져나옴
+          if (nodeId === 'start' || nodeId === 'end') return;
 
+          set((state) => {
             const nodeIndex = state.nodes.findIndex((n) => n.id === nodeId);
             if (nodeIndex >= 0) {
               const node = state.nodes[nodeIndex];
@@ -401,8 +410,117 @@ export const useSurveyStore = create<SurveyStore>()(
 
         setNodes: (nodes) => {
           set((state) => {
-            state.nodes = nodes;
+            // NaN 위치가 저장되지 않도록 방지
+            state.nodes = nodes.map(node => ({
+              ...node,
+              position: {
+                x: isNaN(node.position.x) ? 0 : node.position.x,
+                y: isNaN(node.position.y) ? 0 : node.position.y,
+              }
+            }));
           });
+        },
+
+        // 엣지 사이에 질문 노드 추가
+        insertQuestionBetweenEdge: (edgeId, sourceNodeId, targetNodeId, questionType) => {
+          const template = QUESTION_TEMPLATES[questionType];
+          const firstSection = get().sections[0];
+          const sectionId = firstSection?.sectionId || 'SEC1';
+          let newQuestionId = '';
+
+          set((state) => {
+            // 새 질문 노드 생성
+            state.questionCounter += 1;
+            newQuestionId = `Q${state.questionCounter}`;
+
+            const question: Question = {
+              ...template,
+              questionId: newQuestionId,
+              title: `${template.questionType === 'multiple_choice'
+                ? '객관식'
+                : template.questionType === 'text_opinion'
+                  ? '텍스트'
+                  : template.questionType === 'voice_opinion'
+                    ? '음성'
+                    : '이미지'
+                } 질문`,
+              sectionId,
+              nextQuestion: null,
+            } as Question;
+
+            // source와 target 노드 찾기
+            const sourceNode = state.nodes.find((n) => n.id === sourceNodeId);
+            const targetNode = state.nodes.find((n) => n.id === targetNodeId);
+
+            if (!sourceNode || !targetNode) return;
+
+            // 새 노드의 위치 계산: source에서 400px 오른쪽 (자동 정렬 일관성 유지)
+            const newPosition: XYPosition = {
+              x: sourceNode.position.x + 400,
+              y: sourceNode.position.y,  // 모든 노드가 같은 높이
+            };
+
+            const newNode = createQuestionNode(question, newPosition);
+            state.nodes.push(newNode);
+            state.isDirty = true;
+
+            // 섹션에 질문 추가
+            const sIndex = state.sections.findIndex((s) => s.sectionId === sectionId);
+            if (sIndex >= 0) {
+              state.sections[sIndex].questionIds.push(newQuestionId);
+            }
+
+            // 기존 엣지 삭제
+            const edgeIndex = state.edges.findIndex((e) => e.id === edgeId);
+            if (edgeIndex >= 0) {
+              state.edges.splice(edgeIndex, 1);
+            }
+
+            // 새로운 엣지 2개 생성
+            const edge1 = createEdge(sourceNodeId, newQuestionId);
+            const edge2 = createEdge(newQuestionId, targetNodeId);
+            state.edges.push(edge1, edge2);
+
+            // target 이후의 모든 downstream 노드를 400px씩 오른쪽으로 이동
+            const getDownstreamNodes = (startNodeId: string): Set<string> => {
+              const downstream = new Set<string>();
+              const queue = [startNodeId];
+
+              while (queue.length > 0) {
+                const nodeId = queue.shift()!;
+                if (downstream.has(nodeId)) continue;
+                downstream.add(nodeId);
+
+                // 이 노드를 source로 하는 모든 edge 찾기
+                const outgoingEdges = state.edges.filter((e) => e.source === nodeId);
+                outgoingEdges.forEach((edge) => {
+                  if (!downstream.has(edge.target)) {
+                    queue.push(edge.target);
+                  }
+                });
+              }
+
+              return downstream;
+            };
+
+            // target 이후의 모든 노드 ID 구하기 (targetNode 포함)
+            const downstreamNodeIds = getDownstreamNodes(targetNodeId);
+
+            // 모든 downstream 노드를 400px씩 이동 (균일한 간격 유지)
+            state.nodes.forEach((node) => {
+              if (downstreamNodeIds.has(node.id) && node.id !== newQuestionId) {
+                node.position.x += 400;
+                // Y 좌표는 변경하지 않음 (모든 노드가 같은 높이 유지)
+              }
+            });
+          });
+
+          // 히스토리 저장 및 유효성 검증
+          const updatedState = get();
+          useHistoryStore.getState().actions.saveState(updatedState.nodes, updatedState.edges);
+          get().actions.validateGraph();
+
+          return newQuestionId;
         },
 
         // 엣지 추가
@@ -493,94 +611,145 @@ export const useSurveyStore = create<SurveyStore>()(
           const { nodes, edges } = get();
           const errors: GraphError[] = [];
 
-          // 1. 모든 질문 노드 체크
-          nodes.forEach((node) => {
-            if (node.type !== 'question') return;
-            const questionNode = node as QuestionNode;
-            const { questionId, questionType, options } = questionNode.data.question;
-
-            // 출력 엣지 합계
-            const outgoingEdges = edges.filter((e) => e.source === node.id);
-
-            // 음성/텍스트/이미지 질문: 무조건 하나의 출력이 있어야 함 (default)
-            if (
-              questionType === 'voice_opinion' ||
-              questionType === 'text_opinion' ||
-              questionType === 'image_item'
-            ) {
-              if (outgoingEdges.length === 0) {
-                errors.push({
-                  nodeId: node.id,
-                  message: '다음 질문으로의 연결이 필요합니다.',
-                  type: 'missing_connection',
-                });
-              }
-            }
-
-            // 객관식 질문: nextQuestion이 객체인 경우에만 모든 옵션 연결 검사
-            if (questionType === 'multiple_choice' && options) {
-              const question = questionNode.data.question;
-              // nextQuestion이 객체(분기)인 경우에만 검사
-              if (typeof question.nextQuestion === 'object' && question.nextQuestion !== null) {
-                const connectedOptions = new Set(
-                  outgoingEdges
-                    .map((e) => e.data?.condition || e.sourceHandle?.replace('output-', ''))
-                    .filter(Boolean)
-                );
-
-                options.forEach((opt) => {
-                  if (!connectedOptions.has(opt.value)) {
-                    errors.push({
-                      nodeId: node.id,
-                      message: `옵션 '${opt.label}'에 대한 연결이 누락되었습니다.`,
-                      type: 'missing_connection',
-                    });
-                  }
-                });
-              }
-              // nextQuestion이 문자열(단일 경로)이거나 null인 경우는 하나의 출력만 있으면 충분
-              else if (outgoingEdges.length === 0) {
-                errors.push({
-                  nodeId: node.id,
-                  message: '다음 질문으로의 연결이 필요합니다.',
-                  type: 'missing_connection',
-                });
-              }
-            }
-          });
-
-          // 2. 시작 노드에서 도달 가능한지 체크 (Unreachable nodes)
-          const reachable = new Set<string>(['start']);
-          const queue = ['start'];
-          while (queue.length > 0) {
-            const curr = queue.shift()!;
+          // 1. Start -> Node 도달 가능성 계산 (Forward Reachability)
+          const forwardReachable = new Set<string>(['start']);
+          const forwardQueue = ['start'];
+          while (forwardQueue.length > 0) {
+            const curr = forwardQueue.shift()!;
             edges
               .filter((e) => e.source === curr)
               .forEach((e) => {
-                if (!reachable.has(e.target)) {
-                  reachable.add(e.target);
-                  queue.push(e.target);
+                if (!forwardReachable.has(e.target)) {
+                  forwardReachable.add(e.target);
+                  forwardQueue.push(e.target);
                 }
               });
           }
 
+          // 2. Node -> End 도달 가능성 계산 (Backward Reachability)
+          // 역방향 그래프 탐색을 위해 Reverse Edges 맵 생성
+          const reverseEdges = new Map<string, string[]>();
+          edges.forEach((e) => {
+            if (!reverseEdges.has(e.target)) reverseEdges.set(e.target, []);
+            reverseEdges.get(e.target)!.push(e.source);
+          });
+
+          const backwardReachable = new Set<string>(['end']);
+          const backwardQueue = ['end'];
+          while (backwardQueue.length > 0) {
+            const curr = backwardQueue.shift()!;
+            const sources = reverseEdges.get(curr) || [];
+            sources.forEach((source) => {
+              if (!backwardReachable.has(source)) {
+                backwardReachable.add(source);
+                backwardQueue.push(source);
+              }
+            });
+          }
+
+          // 3. 노드별 검증
           nodes.forEach((node) => {
-            if (!reachable.has(node.id)) {
+            // [검증 1] 시작점에서 도달 불가능한 노드 (Orphan) - Start/End 제외
+            if (node.id !== 'start' && node.id !== 'end' && !forwardReachable.has(node.id)) {
               errors.push({
                 nodeId: node.id,
-                message: '시작 지점에서 도달할 수 없는 노드입니다.',
+                message: '시작 지점에서 도달할 수 없는 노드입니다. (연결 끊김)',
                 type: 'orphan',
               });
+              // Orphan 노드는 추가 검증(연결 누락 등)을 생략하여 노이즈를 줄임
+              return;
+            }
+
+            // [검증 2] 고아(Orphan) 상태가 아니지만 여전히 종료에 도달하지 못하는 경우
+            if (node.id !== 'end' && forwardReachable.has(node.id)) {
+              if (!backwardReachable.has(node.id)) {
+                // 노드 자체가 경로상 고립된 경우 (세부 에러는 검증 3에서 처리)
+              }
+            }
+
+            // [검증 3] 질문 노드 연결 누락 및 분기 무결성 (Missing Connection & Branch Integrity)
+            if (node.type === 'question') {
+              const questionNode = node as QuestionNode;
+              const { questionType, options, nextQuestion } = questionNode.data.question;
+              const outgoingEdges = edges.filter((e) => e.source === node.id);
+
+              // 3-1. 공통: 최소 하나의 연결은 필수
+              if (outgoingEdges.length === 0) {
+                errors.push({
+                  nodeId: node.id,
+                  message: '다음 단계로 연결되지 않았습니다.',
+                  type: 'missing_connection',
+                });
+                return;
+              }
+
+              // 3-2. 분기 유형별 정밀 검증
+              const isMultiBranch = typeof nextQuestion === 'object' && nextQuestion !== null;
+
+              if (isMultiBranch && questionType === 'multiple_choice' && options) {
+                // 조건부 분기 설정(nextQuestion이 객체)인 경우: 모든 옵션 전수 조사
+                const connectedOptionsMap = new Map<string, string>(); // OptionValue -> TargetId
+                outgoingEdges.forEach(e => {
+                  const condition = e.data?.condition || e.sourceHandle?.replace('output-', '');
+                  if (condition) connectedOptionsMap.set(condition, e.target);
+                });
+
+                options.forEach((opt) => {
+                  const targetId = connectedOptionsMap.get(opt.value);
+                  if (!targetId) {
+                    // 미연결 옵션 존재
+                    errors.push({
+                      nodeId: node.id,
+                      message: `옵션 '${opt.label}'의 연결이 누락되었습니다.`,
+                      type: 'missing_connection',
+                    });
+                  } else if (!backwardReachable.has(targetId)) {
+                    // 연결은 되었으나 종료에 도달하지 못하는 경로
+                    errors.push({
+                      nodeId: node.id,
+                      message: `옵션 '${opt.label}'에서 시작되는 경로가 최종적으로 종료(End)에 도달하지 못합니다.`,
+                      type: 'invalid_path',
+                    });
+                  }
+                });
+              } else {
+                // 단일 분기인 경우
+                const defaultEdge = outgoingEdges.find(e => e.sourceHandle === 'output-default' || !e.sourceHandle);
+                if (!defaultEdge) {
+                  errors.push({
+                    nodeId: node.id,
+                    message: '다음 단계로의 주 연결이 없습니다.',
+                    type: 'missing_connection',
+                  });
+                } else if (!backwardReachable.has(defaultEdge.target)) {
+                  errors.push({
+                    nodeId: node.id,
+                    message: '다음 단계로 연결되었으나 최종적으로 종료(End)에 도달할 수 없는 경로입니다.',
+                    type: 'invalid_path',
+                  });
+                }
+              }
             }
           });
 
-          // 3. 시작에서 종료까지 도달 가능한지 체크 (Path Existence)
-          if (!reachable.has('end')) {
+          // [검증 4] Start 노드 연결 및 경로 확인
+          const startOutgoing = edges.filter(e => e.source === 'start');
+          if (startOutgoing.length === 0) {
             errors.push({
               nodeId: 'start',
-              message: '설문이 종료 노드에 도달할 수 없습니다. 모든 경로를 연결해주세요.',
-              type: 'invalid_path',
+              message: '시작 노드가 연결되지 않았습니다.',
+              type: 'missing_connection',
             });
+          } else {
+            // 시작 노드에서 나가는 모든 경로가 종료에 도달하는지 확인
+            const deadPaths = startOutgoing.filter(e => !backwardReachable.has(e.target));
+            if (deadPaths.length > 0) {
+              errors.push({
+                nodeId: 'start',
+                message: '시작 노드에서 종료 지점으로 도달할 수 없는 경로가 존재합니다.',
+                type: 'invalid_path',
+              });
+            }
           }
 
           // store에 에러 설정
@@ -594,15 +763,26 @@ export const useSurveyStore = create<SurveyStore>()(
             state.validationErrors = errors;
             state.isValid = errors.length === 0;
 
-            // 노드에 에러 상태 반영
-            state.nodes.forEach((node) => {
-              if (node.type === 'question') {
-                const questionNode = node as QuestionNode;
-                const nodeErrors = errors.filter((e) => e.nodeId === node.id);
-                questionNode.data.hasError = nodeErrors.length > 0;
-                questionNode.data.errorMessages = nodeErrors.map((e) => e.message);
+            // 노드에 에러 상태 반영 (완전한 새로운 객체 생성을 통해 리렌더링 보장)
+            state.nodes = state.nodes.map((node) => {
+              const nodeErrors = errors.filter((e) => e.nodeId === node.id);
+              const hasError = nodeErrors.length > 0;
+              const errorMessages = nodeErrors.map((e) => e.message);
+
+              // 데이터가 변경된 경우에만 새로운 객체 생성
+              if (node.data.hasError !== hasError ||
+                JSON.stringify(node.data.errorMessages) !== JSON.stringify(errorMessages)) {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    hasError,
+                    errorMessages,
+                  } as any, // 각 노드 타입별 데이터 구조를 유지하며 에러 필드만 주입
+                } as any;
               }
-            });
+              return node;
+            }) as any;
           });
         },
 

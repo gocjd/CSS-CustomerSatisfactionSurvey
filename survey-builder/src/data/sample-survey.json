@@ -1,0 +1,176 @@
+{
+    "version": "1.0.0",
+    "title": "고객 만족도 설문",
+    "description": "서비스 이용에 대한 의견을 들려주세요.",
+    "language": "ko",
+    "sections": [
+        {
+            "sectionId": "SEC1",
+            "title": "기본 정보",
+            "description": "간단한 정보를 입력해주세요.",
+            "questionIds": [
+                "Q1",
+                "Q2",
+                "Q3"
+            ],
+            "required": true
+        },
+        {
+            "sectionId": "SEC2",
+            "title": "상세 의견",
+            "description": "더 자세한 피드백을 남겨주세요.",
+            "questionIds": [
+                "Q4",
+                "Q5"
+            ],
+            "required": true
+        }
+    ],
+    "questions": [
+        {
+            "questionId": "Q1",
+            "sectionId": "SEC1",
+            "questionType": "multiple_choice",
+            "promptType": "text_prompt",
+            "prompt": "어떤 경로로 우리 서비스를 알게 되셨나요?",
+            "importance": "medium",
+            "required": true,
+            "validation": {
+                "type": "selection",
+                "minSelections": 1,
+                "maxSelections": 1
+            },
+            "options": [
+                {
+                    "value": "social",
+                    "label": "소셜 미디어",
+                    "score": 0
+                },
+                {
+                    "value": "friend",
+                    "label": "지인 추천",
+                    "score": 0
+                },
+                {
+                    "value": "search",
+                    "label": "검색 엔진",
+                    "score": 0
+                },
+                {
+                    "value": "ad",
+                    "label": "광고",
+                    "score": 0
+                }
+            ],
+            "nextQuestion": null
+        },
+        {
+            "questionId": "Q2",
+            "sectionId": "SEC1",
+            "questionType": "multiple_choice",
+            "promptType": "text_prompt",
+            "prompt": "오늘 서비스 만족도는 어떠셨나요?",
+            "importance": "high",
+            "required": true,
+            "displayType": "likert_scale",
+            "validation": {
+                "type": "selection",
+                "minSelections": 1,
+                "maxSelections": 1
+            },
+            "options": [
+                {
+                    "value": "1",
+                    "label": "매우 불만족",
+                    "score": 1
+                },
+                {
+                    "value": "2",
+                    "label": "불만족",
+                    "score": 2
+                },
+                {
+                    "value": "3",
+                    "label": "보통",
+                    "score": 3
+                },
+                {
+                    "value": "4",
+                    "label": "만족",
+                    "score": 4
+                },
+                {
+                    "value": "5",
+                    "label": "매우 만족",
+                    "score": 5
+                }
+            ],
+            "nextQuestion": null
+        },
+        {
+            "questionId": "Q3",
+            "sectionId": "SEC1",
+            "questionType": "text_opinion",
+            "promptType": "text_prompt",
+            "prompt": "개선해야 할 점이 있다면 자유롭게 적어주세요.",
+            "importance": "medium",
+            "required": false,
+            "placeholder": "여기에 의견을 입력하세요...",
+            "validation": {
+                "type": "text",
+                "minLength": 0,
+                "maxLength": 500,
+                "pattern": null
+            },
+            "nextQuestion": null
+        },
+        {
+            "questionId": "Q4",
+            "sectionId": "SEC2",
+            "questionType": "multiple_choice",
+            "promptType": "text_prompt",
+            "prompt": "친구에게 추천하실 의향이 있으신가요?",
+            "importance": "high",
+            "required": true,
+            "validation": {
+                "type": "selection",
+                "minSelections": 1,
+                "maxSelections": 1
+            },
+            "options": [
+                {
+                    "value": "yes",
+                    "label": "예",
+                    "score": 10
+                },
+                {
+                    "value": "no",
+                    "label": "아니오",
+                    "score": 0
+                },
+                {
+                    "value": "maybe",
+                    "label": "아마도",
+                    "score": 5
+                }
+            ],
+            "nextQuestion": null
+        },
+        {
+            "questionId": "Q5",
+            "sectionId": "SEC2",
+            "questionType": "voice_opinion",
+            "promptType": "text_prompt",
+            "prompt": "마지막으로 하고 싶은 말이 있으신가요? (음성 가능)",
+            "importance": "low",
+            "required": false,
+            "audio": {
+                "format": "mp3",
+                "hasTranscript": true,
+                "maxRecordingTime": 60
+            },
+            "validation": null,
+            "nextQuestion": null
+        }
+    ]
+}

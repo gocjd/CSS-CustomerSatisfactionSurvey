@@ -1,0 +1,276 @@
+### Page state
+- Page URL: http://localhost:5000/builder
+- Page Title: Survey Builder - CSS Visual Editor
+- Page Snapshot:
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e10]: Survey Builder
+        - button "untitled 저장되지 않은 변경사항" [ref=e153]:
+          - text: untitled
+          - generic "저장되지 않은 변경사항" [ref=e154]
+        - generic [ref=e15]:
+          - img [ref=e577]
+          - text: 유효함
+      - generic [ref=e18]:
+        - button "새 설문" [ref=e19]
+        - button "불러오기" [ref=e20]:
+          - img
+          - text: 불러오기
+        - button "다른 이름으로 저장" [ref=e21]:
+          - img
+          - text: 다른 이름으로 저장
+        - button "저장" [ref=e22]:
+          - img
+          - text: 저장
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - button [ref=e25]:
+          - img
+        - generic [ref=e26]:
+          - heading "질문 유형" [level=2] [ref=e27]
+          - generic [ref=e28]:
+            - img [ref=e29]
+            - textbox "검색..." [ref=e32]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - img [ref=e36]
+            - generic [ref=e39]:
+              - heading "객관식" [level=3] [ref=e40]
+              - paragraph [ref=e41]: 단일 또는 복수 선택
+          - generic [ref=e42]:
+            - img [ref=e44]
+            - generic [ref=e46]:
+              - heading "텍스트 의견" [level=3] [ref=e47]
+              - paragraph [ref=e48]: 자유 텍스트 입력
+          - generic [ref=e49]:
+            - img [ref=e51]
+            - generic [ref=e54]:
+              - heading "음성 의견" [level=3] [ref=e55]
+              - paragraph [ref=e56]: 음성 녹음 답변
+          - generic [ref=e57]:
+            - img [ref=e59]
+            - generic [ref=e63]:
+              - heading "이미지 아이템" [level=3] [ref=e64]
+              - paragraph [ref=e65]: 이미지 표시 및 링크
+        - paragraph [ref=e68]: 질문을 드래그하여 캔버스에 추가하세요.
+      - application [ref=e70]:
+        - generic [ref=e72]:
+          - generic:
+            - generic:
+              - img
+              - img:
+                - group "Edge from start to Q1" [ref=e155] [cursor=pointer]
+              - img:
+                - group "Edge from Q2 to Q3" [ref=e452] [cursor=pointer]
+              - img:
+                - group "Edge from Q3 to Q4" [ref=e579] [cursor=pointer]
+              - img:
+                - group "Edge from Q4 to end" [ref=e582] [cursor=pointer]
+              - img:
+                - group "Edge from Q1 to Q5" [ref=e659] [cursor=pointer]
+              - img:
+                - group "Edge from Q5 to Q2" [ref=e662] [cursor=pointer]
+            - generic:
+              - generic [ref=e161]:
+                - button "연결선 사이에 질문 추가" [ref=e162]:
+                  - img [ref=e163]
+                - button "연결 삭제" [ref=e164]:
+                  - img [ref=e165]
+              - generic [ref=e465]:
+                - button "연결선 사이에 질문 추가" [ref=e466]:
+                  - img [ref=e467]
+                - button "연결 삭제" [ref=e468]:
+                  - img [ref=e469]
+              - generic [ref=e585]:
+                - button "연결선 사이에 질문 추가" [ref=e586]:
+                  - img [ref=e587]
+                - button "연결 삭제" [ref=e588]:
+                  - img [ref=e589]
+              - generic [ref=e592]:
+                - button "연결선 사이에 질문 추가" [ref=e593]:
+                  - img [ref=e594]
+                - button "연결 삭제" [ref=e595]:
+                  - img [ref=e596]
+              - generic [ref=e665]:
+                - button "연결선 사이에 질문 추가" [ref=e666]:
+                  - img [ref=e667]
+                - button "연결 삭제" [ref=e668]:
+                  - img [ref=e669]
+              - generic [ref=e672]:
+                - button "연결선 사이에 질문 추가" [ref=e673]:
+                  - img [ref=e674]
+                - button "연결 삭제" [ref=e675]:
+                  - img [ref=e676]
+            - generic:
+              - group [ref=e80]:
+                - generic [ref=e82]:
+                  - img [ref=e83]
+                  - generic [ref=e85]: 시작
+              - group [ref=e87]:
+                - generic [ref=e89]:
+                  - img [ref=e90]
+                  - generic [ref=e92]: 종료
+              - group [ref=e175]:
+                - generic [ref=e176]:
+                  - generic [ref=e178]:
+                    - generic [ref=e179]:
+                      - img [ref=e181]
+                      - img [ref=e189]
+                      - generic [ref=e192]:
+                        - generic [ref=e193]: Q1
+                        - generic [ref=e194]: 객관식 질문
+                    - generic [ref=e196]: 필수
+                  - generic [ref=e197]:
+                    - paragraph [ref=e198]: 질문을 입력하세요.
+                    - generic [ref=e199]:
+                      - generic [ref=e200]:
+                        - img [ref=e201]
+                        - text: 객관식
+                      - generic [ref=e204]: 단일
+                  - generic [ref=e207]: 단일
+              - group [ref=e479]:
+                - generic [ref=e480]:
+                  - generic [ref=e483]:
+                    - img [ref=e485]
+                    - img [ref=e493]
+                    - generic [ref=e495]:
+                      - generic [ref=e496]: Q2
+                      - generic [ref=e497]: 텍스트 질문
+                  - generic [ref=e498]:
+                    - paragraph [ref=e499]: 의견을 입력해 주세요.
+                    - generic [ref=e500]:
+                      - generic [ref=e501]:
+                        - img [ref=e502]
+                        - text: 텍스트
+                      - generic [ref=e504]: 단일
+                  - generic [ref=e507]: 단일
+              - group [ref=e334]:
+                - generic [ref=e335]:
+                  - generic [ref=e338]:
+                    - img [ref=e340]
+                    - img [ref=e348]
+                    - generic [ref=e351]:
+                      - generic [ref=e352]: Q3
+                      - generic [ref=e353]: 음성 질문
+                  - generic [ref=e354]:
+                    - paragraph [ref=e355]: 음성으로 의견을 말씀해 주세요.
+                    - generic [ref=e356]:
+                      - generic [ref=e357]:
+                        - img [ref=e358]
+                        - text: 음성
+                      - generic [ref=e361]: 단일
+                  - generic [ref=e364]: 단일
+              - group [ref=e599]:
+                - generic [ref=e600]:
+                  - generic [ref=e603]:
+                    - img [ref=e605]
+                    - img [ref=e613]
+                    - generic [ref=e617]:
+                      - generic [ref=e618]: Q4
+                      - generic [ref=e619]: 이미지 질문
+                  - generic [ref=e620]:
+                    - paragraph
+                    - generic [ref=e621]:
+                      - generic [ref=e622]:
+                        - img [ref=e623]
+                        - text: 음성
+                      - generic [ref=e627]: 단일
+                  - generic [ref=e630]: 단일
+              - group [ref=e679]:
+                - generic [ref=e680]:
+                  - generic [ref=e682]:
+                    - generic [ref=e683]:
+                      - img [ref=e685]
+                      - img [ref=e693]
+                      - generic [ref=e696]:
+                        - generic [ref=e697]: Q5
+                        - generic [ref=e698]: 객관식 질문
+                    - generic [ref=e700]: 필수
+                  - generic [ref=e701]:
+                    - paragraph [ref=e702]: 질문을 입력하세요.
+                    - generic [ref=e703]:
+                      - generic [ref=e704]:
+                        - img [ref=e705]
+                        - text: 객관식
+                      - generic [ref=e708]: 단일
+                  - generic [ref=e711]: 단일
+        - img
+        - generic "Control Panel" [ref=e93]:
+          - button "Zoom In" [ref=e94] [cursor=pointer]:
+            - img [ref=e95]
+          - button "Zoom Out" [ref=e97] [cursor=pointer]:
+            - img [ref=e98]
+          - button "Fit View" [ref=e100] [cursor=pointer]:
+            - img [ref=e101]
+        - img "Mini Map" [ref=e104]
+        - generic [ref=e108]:
+          - button "확대 (Ctrl++)" [ref=e109]:
+            - img
+          - button "축소 (Ctrl+-)" [ref=e110]:
+            - img
+          - button "전체 보기" [ref=e111]:
+            - img
+          - button "실행 취소 (Ctrl+Z)" [ref=e287]:
+            - img
+          - button "다시 실행 (Ctrl+Y)" [disabled]:
+            - img
+          - button "자동 정렬" [ref=e114]:
+            - img
+          - button "다크 모드" [ref=e115]:
+            - img
+      - generic [ref=e512]:
+        - generic [ref=e513]:
+          - generic [ref=e514]:
+            - heading "속성 편집" [level=2] [ref=e515]
+            - paragraph [ref=e516]: Q2 - 텍스트 질문
+          - button [ref=e517]:
+            - img
+        - generic [ref=e518]:
+          - tablist [ref=e519]:
+            - tab "기본 정보" [selected] [ref=e520]
+            - tab "분기" [ref=e521]
+            - tab "검증" [ref=e522]
+          - tabpanel "기본 정보" [ref=e524]:
+            - generic [ref=e525]:
+              - generic [ref=e526]:
+                - text: 질문 ID
+                - generic [ref=e527]: Q2
+                - paragraph [ref=e528]: 시스템에서 자동 생성되며 수정할 수 없습니다. 설문 내에서 고유합니다.
+              - generic [ref=e529]:
+                - text: 질문 제목
+                - textbox "질문 제목" [ref=e530]:
+                  - /placeholder: 질문 제목을 입력하세요
+                  - text: 텍스트 질문
+                - paragraph [ref=e531]: 중복된 제목은 자동으로 번호가 추가됩니다.
+              - generic [ref=e532]:
+                - text: 질문 내용 (프롬프트)
+                - textbox "질문 내용 (프롬프트)" [ref=e533]:
+                  - /placeholder: 질문 내용을 입력하세요
+                  - text: 의견을 입력해 주세요.
+              - generic [ref=e534]:
+                - text: 질문 유형
+                - generic [ref=e535]: 텍스트 의견
+              - generic [ref=e536]:
+                - text: 중요도
+                - combobox [ref=e537]:
+                  - option "낮음"
+                  - option "보통" [selected]
+                  - option "높음"
+                  - option "매우 높음"
+              - generic [ref=e538]:
+                - checkbox "필수 응답" [ref=e539]
+                - generic [ref=e540] [cursor=pointer]: 필수 응답
+              - generic [ref=e541]:
+                - text: 입력 안내 문구
+                - textbox "입력 안내 문구" [ref=e542]:
+                  - /placeholder: "예: 자유롭게 의견을 입력해주세요"
+                  - text: 자유롭게 의견을 작성해 주세요.
+  - button "Open Next.js Dev Tools" [ref=e122] [cursor=pointer]:
+    - img [ref=e123]
+  - alert [ref=e126]
+```

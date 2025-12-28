@@ -14,11 +14,15 @@ export interface QuestionNodeData extends Record<string, unknown> {
 // 시작 노드 데이터
 export interface StartNodeData extends Record<string, unknown> {
   label: string;
+  hasError?: boolean;
+  errorMessages?: string[];
 }
 
 // 종료 노드 데이터
 export interface EndNodeData extends Record<string, unknown> {
   label: string;
+  hasError?: boolean;
+  errorMessages?: string[];
 }
 
 // 섹션 노드 데이터 (그룹화용)
@@ -75,6 +79,8 @@ export function createStartNode(position: XYPosition = { x: 50, y: 200 }): Start
     position,
     data: {
       label: '시작',
+      hasError: false,
+      errorMessages: [],
     },
     draggable: true,
   };
@@ -87,6 +93,8 @@ export function createEndNode(position: XYPosition = { x: 800, y: 200 }): EndNod
     position,
     data: {
       label: '종료',
+      hasError: false,
+      errorMessages: [],
     },
     draggable: true,
   };
