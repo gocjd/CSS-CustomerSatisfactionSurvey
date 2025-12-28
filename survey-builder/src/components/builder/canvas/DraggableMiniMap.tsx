@@ -25,7 +25,8 @@ export function DraggableMiniMap() {
 
     // 초기 위치 설정 (클라이언트 사이드 전용)
     useEffect(() => {
-        setPosition({ x: window.innerWidth - 340, y: 20 });
+        // 왼쪽 하단에 위치하도록 설정 (팔레트 너비 64px 고려)
+        setPosition({ x: 60, y: window.innerHeight - 260 });
         setIsMounted(true);
     }, []);
 
@@ -121,7 +122,7 @@ export function DraggableMiniMap() {
                 position: 'absolute',
                 left: position.x,
                 top: position.y,
-                zIndex: 100, // 패널보다 위에 오도록 상향
+                zIndex: 999, // 패널보다 확실히 위에 오도록 상향
                 width: 320,
                 height: 240,
             }}

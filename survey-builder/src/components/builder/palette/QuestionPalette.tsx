@@ -150,10 +150,13 @@ export function QuestionPalette() {
                 <div id="minimap-dock-destination" className="w-full h-full" />
               </div>
             ) : (
-              <div className="p-4">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  질문을 드래그하여 캔버스에 추가하세요.
-                </p>
+              <div className="relative">
+                <div id="minimap-dock-destination" className="absolute inset-0 pointer-events-none opacity-0" />
+                <div className="p-4">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    질문을 드래그하여 캔버스에 추가하세요.
+                  </p>
+                </div>
               </div>
             )}
           </div>
